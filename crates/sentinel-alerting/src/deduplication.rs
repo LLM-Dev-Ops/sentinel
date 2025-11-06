@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use llm_sentinel_core::{
     events::AnomalyEvent,
-    types::{AnomalyType, ModelId, ServiceId, Severity},
+    types::{ModelId, ServiceId},
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -166,7 +166,7 @@ impl AlertDeduplicator {
 
             let severity_count = stats
                 .by_severity
-                .entry(entry.key().severity)
+                .entry(entry.key().severity.clone())
                 .or_insert(0);
             *severity_count += entry.value().count.saturating_sub(1);
         }
