@@ -19,6 +19,7 @@ llm-sentinel-core = { version = "0.1.0", path = "../sentinel-core" }
 # Async
 tokio = { workspace = true }
 async-trait = { workspace = true }
+futures = { workspace = true }
 
 # Database
 influxdb2 = { workspace = true }

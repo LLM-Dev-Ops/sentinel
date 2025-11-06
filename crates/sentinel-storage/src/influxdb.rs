@@ -8,7 +8,6 @@ use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     Error, Result,
 };
-use std::collections::HashMap;
 use tracing::{debug, error, info, warn};
 
 /// InfluxDB configuration
@@ -104,7 +103,7 @@ impl InfluxDbStorage {
             .tag("type", &anomaly.anomaly_type.to_string())
             .tag("method", &anomaly.detection_method.to_string())
             .field("confidence", anomaly.confidence)
-            .field("metric", &anomaly.details.metric)
+            .field("metric", anomaly.details.metric.as_str())
             .field("value", anomaly.details.value)
             .field("baseline", anomaly.details.baseline)
             .field("threshold", anomaly.details.threshold)

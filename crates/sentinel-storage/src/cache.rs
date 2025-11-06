@@ -3,9 +3,8 @@
 use moka::future::Cache;
 use llm_sentinel_core::{Error, Result};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::time::Duration;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 /// Cache configuration
 #[derive(Debug, Clone)]
@@ -176,7 +175,7 @@ impl RedisCache {
 
         // Ping test
         redis::cmd("PING")
-            .query_async::<_, String>(&mut conn)
+            .query_async::<String>(&mut conn)
             .await
             .map_err(|e| Error::connection(format!("Redis ping failed: {}", e)))?;
 
@@ -282,7 +281,7 @@ impl RedisCache {
             .map_err(|e| Error::connection(format!("Failed to get Redis connection: {}", e)))?;
 
         redis::cmd("PING")
-            .query_async::<_, String>(&mut conn)
+            .query_async::<String>(&mut conn)
             .await
             .map_err(|e| Error::connection(format!("Redis health check failed: {}", e)))?;
 
