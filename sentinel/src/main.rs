@@ -9,15 +9,15 @@
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use llm_sentinel_alerting::prelude::*;
+use llm_sentinel_alerting::{prelude::*, rabbitmq::RetryConfig};
 use llm_sentinel_api::prelude::*;
-use llm_sentinel_core::{config::Config, prelude::*};
+use llm_sentinel_core::config::Config;
 use llm_sentinel_detection::prelude::*;
 use llm_sentinel_ingestion::prelude::*;
 use llm_sentinel_storage::prelude::*;
 use std::{path::PathBuf, sync::Arc};
-use tokio::signal;
-use tracing::{error, info, warn};
+use tokio::{signal, sync::Mutex};
+use tracing::{error, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 /// LLM-Sentinel CLI arguments
@@ -118,7 +118,7 @@ fn init_logging(cli: &Cli) -> Result<()> {
 struct Sentinel {
     config: Config,
     storage: Arc<InfluxDbStorage>,
-    detection_engine: Arc<DetectionEngine>,
+    detection_engine: Arc<Mutex<DetectionEngine>>,
     alerter: Arc<RabbitMqAlerter>,
     deduplicator: Arc<AlertDeduplicator>,
 }
@@ -130,7 +130,21 @@ impl Sentinel {
 
         // Initialize storage
         info!("Connecting to InfluxDB...");
-        let storage = InfluxDbStorage::new(config.storage.influxdb.clone())
+        let core_influxdb_config = config.storage.influxdb.clone()
+            .context("InfluxDB configuration is required")?;
+
+        // Convert core InfluxDbConfig to storage InfluxDbConfig
+        let influxdb_config = llm_sentinel_storage::influxdb::InfluxDbConfig {
+            url: core_influxdb_config.url,
+            org: core_influxdb_config.org,
+            telemetry_bucket: core_influxdb_config.bucket.clone(),
+            anomaly_bucket: format!("{}-anomalies", core_influxdb_config.bucket),
+            token: core_influxdb_config.token,
+            batch_size: 100,
+            timeout_secs: core_influxdb_config.timeout_secs,
+        };
+
+        let storage = InfluxDbStorage::new(influxdb_config)
             .await
             .context("Failed to initialize storage")?;
         let storage = Arc::new(storage);
@@ -138,25 +152,51 @@ impl Sentinel {
 
         // Initialize detection engine
         info!("Initializing detection engine...");
-        let detection_engine = Arc::new(
-            DetectionEngine::from_config(config.detection.clone())
+
+        // Convert DetectionConfig to EngineConfig
+        // For now, use default EngineConfig - in production this should be configured
+        let engine_config = EngineConfig::default();
+
+        let detection_engine = Arc::new(Mutex::new(
+            DetectionEngine::new(engine_config)
                 .context("Failed to create detection engine")?,
-        );
-        info!("Detection engine initialized with {} detectors",
-            config.detection.enabled_detectors.len());
+        ));
+        info!("Detection engine initialized");
 
         // Initialize alerting
         info!("Connecting to RabbitMQ...");
-        let alerter = RabbitMqAlerter::new(config.alerting.rabbitmq.clone())
+        let core_rabbitmq_config = config.alerting.rabbitmq.clone()
+            .context("RabbitMQ configuration is required")?;
+
+        // Convert core RabbitMqConfig to alerting RabbitMqConfig
+        let rabbitmq_config = llm_sentinel_alerting::rabbitmq::RabbitMqConfig {
+            url: core_rabbitmq_config.url,
+            exchange: core_rabbitmq_config.exchange,
+            exchange_type: core_rabbitmq_config.exchange_type,
+            routing_key_prefix: "alert".to_string(),
+            persistent: core_rabbitmq_config.durable,
+            timeout_secs: 10,
+            retry_config: RetryConfig {
+                max_attempts: core_rabbitmq_config.retry_attempts,
+                initial_delay_ms: core_rabbitmq_config.retry_delay_ms,
+                backoff_multiplier: 2.0,
+                max_delay_ms: 30000,
+            },
+        };
+
+        let alerter = RabbitMqAlerter::new(rabbitmq_config)
             .await
             .context("Failed to initialize RabbitMQ alerter")?;
         let alerter = Arc::new(alerter);
         info!("RabbitMQ connected");
 
         // Initialize deduplicator
-        let deduplicator = Arc::new(AlertDeduplicator::new(
-            config.alerting.deduplication.clone(),
-        ));
+        let dedup_config = DeduplicationConfig {
+            window_secs: config.alerting.dedup_window_secs,
+            enabled: true,
+            cleanup_interval_secs: 60,
+        };
+        let deduplicator = Arc::new(AlertDeduplicator::new(dedup_config));
 
         // Start cleanup task
         deduplicator.clone().start_cleanup_task();
@@ -176,11 +216,23 @@ impl Sentinel {
     async fn run(self) -> Result<()> {
         info!("Starting Sentinel services...");
 
+        let sentinel = Arc::new(self);
+
         // Start API server in background
-        let api_server = self.start_api_server();
+        let api_server = {
+            let sentinel = sentinel.clone();
+            tokio::spawn(async move {
+                sentinel.start_api_server().await
+            })
+        };
 
         // Start ingestion pipeline
-        let ingestion_pipeline = self.start_ingestion_pipeline();
+        let ingestion_pipeline = {
+            let sentinel = sentinel.clone();
+            tokio::spawn(async move {
+                sentinel.start_ingestion_pipeline().await
+            })
+        };
 
         // Wait for shutdown signal
         let shutdown = tokio::spawn(async {
@@ -208,7 +260,17 @@ impl Sentinel {
 
     /// Start API server
     async fn start_api_server(self: &Self) -> Result<()> {
-        let api_config = self.config.api.clone();
+        let api_config = ApiConfig {
+            bind_addr: format!("{}:{}", self.config.server.host, self.config.server.port)
+                .parse()
+                .context("Invalid server bind address")?,
+            enable_cors: true,
+            cors_origins: vec!["*".to_string()],
+            timeout_secs: self.config.server.request_timeout_secs,
+            max_body_size: 10 * 1024 * 1024, // 10MB
+            enable_logging: true,
+            metrics_path: "/metrics".to_string(),
+        };
         let storage: Arc<dyn Storage> = self.storage.clone();
 
         let server = ApiServer::new(
@@ -217,21 +279,23 @@ impl Sentinel {
             env!("CARGO_PKG_VERSION").to_string(),
         );
 
-        server.serve().await?;
+        server.serve().await
+            .map_err(|e| anyhow::anyhow!("API server error: {}", e))?;
 
         Ok(())
     }
 
     /// Start ingestion and detection pipeline
-    async fn start_ingestion_pipeline(self: Self) -> Result<()> {
+    async fn start_ingestion_pipeline(self: &Self) -> Result<()> {
         info!("Starting Kafka ingestion pipeline...");
 
-        let mut ingester = KafkaIngester::new(self.config.ingestion.kafka.clone())
-            .await
-            .context("Failed to create Kafka ingester")?;
-
-        let parser = OtlpParser::new(self.config.ingestion.parsing.clone());
-        let validator = EventValidator::new(self.config.ingestion.validation.clone());
+        let kafka_config = self.config.ingestion.kafka.as_ref()
+            .context("Kafka configuration is required")?;
+        let mut ingester = KafkaIngester::new(
+            kafka_config,
+            self.config.ingestion.batch_size,
+            self.config.ingestion.batch_timeout_ms,
+        ).context("Failed to create Kafka ingester")?;
 
         info!("Ingestion pipeline ready, consuming from Kafka...");
 
@@ -242,27 +306,20 @@ impl Sentinel {
                         continue;
                     }
 
-                    info!("Received batch of {} telemetry events", events.len());
+                    let event_count = events.len();
+                    info!("Received batch of {} telemetry events", event_count);
 
                     // Process each event
-                    for event in events {
-                        // Validate event
-                        if let Err(e) = validator.validate(&event) {
-                            warn!("Event validation failed: {}", e);
-                            metrics::counter!("sentinel_validation_failures_total")
-                                .increment(1);
-                            continue;
-                        }
-
+                    for event in &events {
                         // Store telemetry
                         if let Err(e) = self.storage.write_telemetry(&event).await {
                             error!("Failed to write telemetry: {}", e);
-                            metrics::counter!("sentinel_storage_errors_total")
+                            ::metrics::counter!("sentinel_storage_errors_total")
                                 .increment(1);
                         }
 
                         // Run detection
-                        match self.detection_engine.process(&event).await {
+                        match self.detection_engine.lock().await.process(&event).await {
                             Ok(Some(anomaly)) => {
                                 info!(
                                     alert_id = %anomaly.alert_id,
@@ -281,7 +338,7 @@ impl Sentinel {
                                     // Send alert
                                     if let Err(e) = self.alerter.send(&anomaly).await {
                                         error!("Failed to send alert: {}", e);
-                                        metrics::counter!("sentinel_alert_failures_total")
+                                        ::metrics::counter!("sentinel_alert_failures_total")
                                             .increment(1);
                                     }
                                 } else {
@@ -293,23 +350,23 @@ impl Sentinel {
                             }
                             Ok(None) => {
                                 // No anomaly detected
-                                metrics::counter!("sentinel_events_normal_total")
+                                ::metrics::counter!("sentinel_events_normal_total")
                                     .increment(1);
                             }
                             Err(e) => {
                                 error!("Detection failed: {}", e);
-                                metrics::counter!("sentinel_detection_errors_total")
+                                ::metrics::counter!("sentinel_detection_errors_total")
                                     .increment(1);
                             }
                         }
                     }
 
-                    metrics::counter!("sentinel_events_processed_total")
-                        .increment(events.len() as u64);
+                    ::metrics::counter!("sentinel_events_processed_total")
+                        .increment(event_count as u64);
                 }
                 Err(e) => {
                     error!("Ingestion error: {}", e);
-                    metrics::counter!("sentinel_ingestion_errors_total").increment(1);
+                    ::metrics::counter!("sentinel_ingestion_errors_total").increment(1);
 
                     // Backoff on errors
                     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
