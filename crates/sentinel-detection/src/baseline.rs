@@ -2,7 +2,7 @@
 
 use crate::stats::RollingWindow;
 use dashmap::DashMap;
-use sentinel_core::{
+use llm_sentinel_core::{
     types::{ModelId, ServiceId},
     Result,
 };

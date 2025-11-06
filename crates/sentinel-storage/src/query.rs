@@ -1,7 +1,7 @@
 //! Query definitions for storage backends.
 
 use chrono::{DateTime, Utc};
-use sentinel_core::types::{AnomalyType, ModelId, ServiceId, Severity};
+use llm_sentinel_core::types::{AnomalyType, ModelId, ServiceId, Severity};
 use serde::{Deserialize, Serialize};
 
 /// Time range for queries

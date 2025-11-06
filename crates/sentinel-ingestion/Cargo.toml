@@ -44,6 +44,7 @@ metrics = { workspace = true }
 
 # Validation
 validator = { workspace = true }
+regex = { workspace = true }
 
 # Time
 chrono = { workspace = true }

@@ -6,7 +6,7 @@ use rdkafka::{
     consumer::{Consumer, StreamConsumer},
     ClientConfig, Message,
 };
-use sentinel_core::{
+use llm_sentinel_core::{
     config::KafkaConfig,
     events::TelemetryEvent,
     Error, Result,
@@ -193,7 +193,7 @@ impl Ingester for KafkaIngester {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         config::KafkaConfig,
         events::{PromptInfo, ResponseInfo, TelemetryEvent},
         types::{ModelId, ServiceId},

@@ -24,13 +24,13 @@ Production-ready REST API built with Axum:
 
 ```toml
 [dependencies]
-llm-sentinel-api = "0.1.0"
+llm-llm-sentinel-api = "0.1.0"
 ```
 
 ## Example
 
 ```rust
-use sentinel_api::{ApiServer, ApiConfig};
+use llm_sentinel_api::{ApiServer, ApiConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

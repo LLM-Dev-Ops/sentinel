@@ -26,13 +26,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-llm-sentinel-ingestion = "0.1.0"
+llm-llm-sentinel-ingestion = "0.1.0"
 ```
 
 ## Example
 
 ```rust
-use sentinel_ingestion::{KafkaConsumer, IngestionConfig};
+use llm_sentinel_ingestion::{KafkaConsumer, IngestionConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -26,13 +26,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-llm-sentinel-core = "0.1.0"
+llm-llm-sentinel-core = "0.1.0"
 ```
 
 ## Example
 
 ```rust
-use sentinel_core::{TelemetryEvent, SentinelConfig};
+use llm_sentinel_core::{TelemetryEvent, SentinelConfig};
 
 // Load configuration
 let config = SentinelConfig::from_file("sentinel.yaml")?;

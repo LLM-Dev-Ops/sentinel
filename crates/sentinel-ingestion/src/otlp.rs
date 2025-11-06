@@ -1,6 +1,6 @@
 //! OpenTelemetry Protocol (OTLP) parsing for telemetry events.
 
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{PromptInfo, ResponseInfo, TelemetryEvent},
     types::{ModelId, ServiceId},
     Error, Result,

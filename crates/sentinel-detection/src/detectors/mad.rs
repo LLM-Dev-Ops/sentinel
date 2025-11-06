@@ -8,7 +8,7 @@ use crate::{
     stats, Detector, DetectorStats, DetectorType,
 };
 use async_trait::async_trait;
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyContext, AnomalyDetails, AnomalyEvent, TelemetryEvent},
     types::{AnomalyType, DetectionMethod, Severity},
     Result,

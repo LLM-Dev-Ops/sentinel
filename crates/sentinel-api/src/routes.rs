@@ -63,7 +63,7 @@ pub fn create_router(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_storage::Storage;
+    use llm_sentinel_storage::Storage;
     use std::sync::Arc;
 
     // Mock storage for testing

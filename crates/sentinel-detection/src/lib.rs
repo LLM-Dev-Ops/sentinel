@@ -16,7 +16,7 @@ pub mod engine;
 pub mod stats;
 
 use async_trait::async_trait;
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     Result,
 };

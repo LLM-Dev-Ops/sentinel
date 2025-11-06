@@ -5,7 +5,7 @@ use crate::{
     routes::create_router,
     ApiConfig,
 };
-use sentinel_storage::Storage;
+use llm_sentinel_storage::Storage;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tracing::{info, error};
@@ -85,7 +85,7 @@ impl ApiServer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_storage::Storage;
+    use llm_sentinel_storage::Storage;
 
     struct MockStorage;
 

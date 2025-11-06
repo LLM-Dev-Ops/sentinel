@@ -1,8 +1,8 @@
 //! Ingestion pipeline orchestration.
 
 use crate::{Ingester, otlp::OtlpParser, validation::EventValidator};
-use crossfire::mpsc::{TxUnbounded, RxUnbounded};
-use sentinel_core::{
+use crossfire::mpsc::{TxFuture, RxFuture};
+use llm_sentinel_core::{
     config::IngestionConfig,
     events::TelemetryEvent,
     Result, Error,
@@ -40,8 +40,8 @@ pub struct IngestionPipeline {
     config: PipelineConfig,
     validator: Arc<EventValidator>,
     parser: Arc<OtlpParser>,
-    tx: Option<TxUnbounded<TelemetryEvent>>,
-    rx: Option<RxUnbounded<TelemetryEvent>>,
+    tx: Option<TxFuture<TelemetryEvent>>,
+    rx: Option<RxFuture<TelemetryEvent>>,
     worker_handles: Vec<JoinHandle<()>>,
 }
 
@@ -61,7 +61,7 @@ impl IngestionPipeline {
     }
 
     /// Get a sender for pushing events into the pipeline
-    pub fn sender(&self) -> Result<TxUnbounded<TelemetryEvent>> {
+    pub fn sender(&self) -> Result<TxFuture<TelemetryEvent>> {
         self.tx
             .as_ref()
             .map(|tx| tx.clone())
@@ -69,7 +69,7 @@ impl IngestionPipeline {
     }
 
     /// Get a receiver for consuming processed events
-    pub fn receiver(&mut self) -> Result<RxUnbounded<TelemetryEvent>> {
+    pub fn receiver(&mut self) -> Result<RxFuture<TelemetryEvent>> {
         self.rx
             .take()
             .ok_or_else(|| Error::internal("Pipeline receiver already taken"))
@@ -109,7 +109,7 @@ impl IngestionPipeline {
     /// Worker task for processing events
     async fn worker_task(
         worker_id: usize,
-        mut rx: RxUnbounded<TelemetryEvent>,
+        mut rx: RxFuture<TelemetryEvent>,
         validator: Arc<EventValidator>,
         enable_validation: bool,
         enable_sanitization: bool,
@@ -208,7 +208,7 @@ pub struct PipelineStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{PromptInfo, ResponseInfo},
         types::{ModelId, ServiceId},
     };

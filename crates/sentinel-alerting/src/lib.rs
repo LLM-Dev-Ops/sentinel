@@ -16,7 +16,7 @@ pub mod rabbitmq;
 pub mod webhook;
 
 use async_trait::async_trait;
-use sentinel_core::{events::AnomalyEvent, Result};
+use llm_sentinel_core::{events::AnomalyEvent, Result};
 use serde::{Deserialize, Serialize};
 
 /// Trait for alert delivery systems

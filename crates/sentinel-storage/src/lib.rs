@@ -15,7 +15,7 @@ pub mod influxdb;
 pub mod query;
 
 use async_trait::async_trait;
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     Result,
 };

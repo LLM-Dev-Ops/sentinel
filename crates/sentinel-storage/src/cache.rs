@@ -1,7 +1,7 @@
 //! Caching layer for baselines and hot data.
 
 use moka::future::Cache;
-use sentinel_core::{Error, Result};
+use llm_sentinel_core::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;

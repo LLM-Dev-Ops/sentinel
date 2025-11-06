@@ -2,7 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
-use sentinel_core::{
+use llm_sentinel_core::{
     events::AnomalyEvent,
     types::{AnomalyType, ModelId, ServiceId, Severity},
     Result,
@@ -247,7 +247,7 @@ impl DeduplicationStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{AnomalyDetails, PromptInfo, ResponseInfo, TelemetryEvent},
         types::{DetectionMethod, ModelId, ServiceId},
     };

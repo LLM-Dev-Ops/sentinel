@@ -9,7 +9,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use dashmap::DashMap;
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyContext, AnomalyDetails, AnomalyEvent, TelemetryEvent},
     types::{AnomalyType, DetectionMethod, Severity},
     Result,
@@ -222,7 +222,7 @@ impl CusumDetector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{PromptInfo, ResponseInfo},
         types::{ModelId, ServiceId},
     };

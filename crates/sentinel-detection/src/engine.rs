@@ -12,7 +12,7 @@ use crate::{
     },
     Detector, DetectorStats,
 };
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     Error, Result,
 };
@@ -325,7 +325,7 @@ impl DetectionEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{PromptInfo, ResponseInfo},
         types::{ModelId, ServiceId},
     };

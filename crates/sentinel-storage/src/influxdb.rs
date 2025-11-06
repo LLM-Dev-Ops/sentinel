@@ -4,7 +4,7 @@ use crate::{query::{AnomalyQuery, TelemetryQuery}, Storage};
 use async_trait::async_trait;
 use influxdb2::models::DataPoint;
 use influxdb2::Client;
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     Error, Result,
 };
@@ -270,7 +270,7 @@ impl Storage for InfluxDbStorage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{PromptInfo, ResponseInfo},
         types::{ModelId, ServiceId},
     };

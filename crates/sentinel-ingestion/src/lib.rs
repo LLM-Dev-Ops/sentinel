@@ -16,7 +16,7 @@ pub mod pipeline;
 pub mod validation;
 
 use async_trait::async_trait;
-use sentinel_core::{events::TelemetryEvent, Result};
+use llm_sentinel_core::{events::TelemetryEvent, Result};
 
 /// Trait for telemetry ingesters
 #[async_trait]

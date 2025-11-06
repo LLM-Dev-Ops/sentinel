@@ -2,11 +2,11 @@
 
 use axum::{extract::{Query, State}, http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
-use sentinel_core::{
+use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     types::{AnomalyType, ModelId, ServiceId, Severity},
 };
-use sentinel_storage::{
+use llm_sentinel_storage::{
     query::{AnomalyQuery, TelemetryQuery, TimeRange},
     Storage,
 };

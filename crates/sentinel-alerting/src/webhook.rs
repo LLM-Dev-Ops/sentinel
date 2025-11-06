@@ -3,7 +3,7 @@
 use crate::{AlertConfig, Alerter};
 use async_trait::async_trait;
 use reqwest::{Client, StatusCode};
-use sentinel_core::{events::AnomalyEvent, Error, Result};
+use llm_sentinel_core::{events::AnomalyEvent, Error, Result};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::{debug, error, info, warn};
@@ -313,7 +313,7 @@ impl Alerter for WebhookAlerter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{AnomalyDetails, PromptInfo, ResponseInfo, TelemetryEvent},
         types::{AnomalyType, DetectionMethod, ModelId, ServiceId, Severity},
     };

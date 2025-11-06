@@ -9,12 +9,12 @@
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use sentinel_alerting::prelude::*;
-use sentinel_api::prelude::*;
-use sentinel_core::{config::Config, prelude::*};
-use sentinel_detection::prelude::*;
-use sentinel_ingestion::prelude::*;
-use sentinel_storage::prelude::*;
+use llm_sentinel_alerting::prelude::*;
+use llm_sentinel_api::prelude::*;
+use llm_sentinel_core::{config::Config, prelude::*};
+use llm_sentinel_detection::prelude::*;
+use llm_sentinel_ingestion::prelude::*;
+use llm_sentinel_storage::prelude::*;
 use std::{path::PathBuf, sync::Arc};
 use tokio::signal;
 use tracing::{error, info, warn};

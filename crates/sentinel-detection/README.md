@@ -26,13 +26,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-llm-sentinel-detection = "0.1.0"
+llm-llm-sentinel-detection = "0.1.0"
 ```
 
 ## Example
 
 ```rust
-use sentinel_detection::{DetectionEngine, DetectionConfig, ZScoreDetector};
+use llm_sentinel_detection::{DetectionEngine, DetectionConfig, ZScoreDetector};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

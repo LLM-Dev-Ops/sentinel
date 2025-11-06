@@ -1,6 +1,6 @@
 //! Event validation and sanitization.
 
-use sentinel_core::{events::TelemetryEvent, Error, Result};
+use llm_sentinel_core::{events::TelemetryEvent, Error, Result};
 use tracing::{debug, warn};
 use validator::Validate;
 
@@ -202,7 +202,7 @@ impl EventValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{PromptInfo, ResponseInfo},
         types::{ModelId, ServiceId},
     };

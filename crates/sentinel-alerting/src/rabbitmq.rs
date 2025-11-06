@@ -6,7 +6,7 @@ use lapin::{
     options::*, types::FieldTable, BasicProperties, Channel, Connection, ConnectionProperties,
     ExchangeKind,
 };
-use sentinel_core::{events::AnomalyEvent, types::Severity, Error, Result};
+use llm_sentinel_core::{events::AnomalyEvent, types::Severity, Error, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;
@@ -285,7 +285,7 @@ impl Alerter for RabbitMqAlerter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sentinel_core::{
+    use llm_sentinel_core::{
         events::{AnomalyDetails, PromptInfo, ResponseInfo, TelemetryEvent},
         types::{AnomalyType, DetectionMethod, ModelId, ServiceId},
     };

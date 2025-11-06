@@ -24,13 +24,13 @@ Flexible alerting system with multiple delivery channels:
 
 ```toml
 [dependencies]
-llm-sentinel-alerting = "0.1.0"
+llm-llm-sentinel-alerting = "0.1.0"
 ```
 
 ## Example
 
 ```rust
-use sentinel_alerting::{AlertingManager, AlertingConfig};
+use llm_sentinel_alerting::{AlertingManager, AlertingConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
