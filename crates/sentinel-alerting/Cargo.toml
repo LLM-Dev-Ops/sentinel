@@ -22,7 +22,6 @@ async-trait = { workspace = true }
 
 # Messaging
 lapin = "2.5"
-amqp-client = "0.3"
 
 # HTTP Client
 reqwest = { workspace = true }
