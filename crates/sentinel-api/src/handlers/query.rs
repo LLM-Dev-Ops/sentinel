@@ -1,7 +1,7 @@
 //! Query endpoints for telemetry and anomalies.
 
 use axum::{extract::{Query, State}, http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use llm_sentinel_core::{
     events::{AnomalyEvent, TelemetryEvent},
     types::{AnomalyType, ModelId, ServiceId, Severity},
@@ -280,18 +280,20 @@ fn parse_severity(s: &str) -> Result<Severity, String> {
 fn parse_anomaly_type(s: &str) -> Result<AnomalyType, String> {
     match s.to_lowercase().replace('-', "_").as_str() {
         "latency_spike" => Ok(AnomalyType::LatencySpike),
+        "throughput_degradation" => Ok(AnomalyType::ThroughputDegradation),
+        "error_rate_increase" | "error_rate_spike" => Ok(AnomalyType::ErrorRateIncrease),
         "token_usage_spike" => Ok(AnomalyType::TokenUsageSpike),
         "cost_anomaly" => Ok(AnomalyType::CostAnomaly),
-        "error_rate_spike" => Ok(AnomalyType::ErrorRateSpike),
-        "prompt_injection" => Ok(AnomalyType::PromptInjection),
-        "data_exfiltration" => Ok(AnomalyType::DataExfiltration),
-        "unusual_pattern" => Ok(AnomalyType::UnusualPattern),
-        "jailbreak_attempt" => Ok(AnomalyType::JailbreakAttempt),
-        "context_overflow" => Ok(AnomalyType::ContextOverflow),
-        "model_drift" => Ok(AnomalyType::ModelDrift),
+        "input_drift" => Ok(AnomalyType::InputDrift),
+        "output_drift" => Ok(AnomalyType::OutputDrift),
+        "concept_drift" | "model_drift" => Ok(AnomalyType::ConceptDrift),
+        "embedding_drift" => Ok(AnomalyType::EmbeddingDrift),
+        "hallucination" => Ok(AnomalyType::Hallucination),
         "quality_degradation" => Ok(AnomalyType::QualityDegradation),
-        "compliance_violation" => Ok(AnomalyType::ComplianceViolation),
-        _ => Err(format!("Invalid anomaly type: {}", s)),
+        "security_threat" | "prompt_injection" | "data_exfiltration" | "jailbreak_attempt" => {
+            Ok(AnomalyType::SecurityThreat)
+        }
+        _ => Ok(AnomalyType::Custom(s.to_string())),
     }
 }
 
@@ -317,6 +319,18 @@ mod tests {
             parse_anomaly_type("COST_ANOMALY"),
             Ok(AnomalyType::CostAnomaly)
         );
-        assert!(parse_anomaly_type("invalid").is_err());
+        assert_eq!(
+            parse_anomaly_type("error_rate_spike"),
+            Ok(AnomalyType::ErrorRateIncrease)
+        );
+        assert_eq!(
+            parse_anomaly_type("prompt_injection"),
+            Ok(AnomalyType::SecurityThreat)
+        );
+        // Unknown types map to Custom
+        assert_eq!(
+            parse_anomaly_type("invalid"),
+            Ok(AnomalyType::Custom("invalid".to_string()))
+        );
     }
 }

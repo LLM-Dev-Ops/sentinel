@@ -21,6 +21,7 @@ llm-sentinel-detection = { version = "0.1.0", path = "../sentinel-detection" }
 # Async
 tokio = { workspace = true }
 async-trait = { workspace = true }
+futures = { workspace = true }
 
 # HTTP Framework
 axum = { workspace = true }

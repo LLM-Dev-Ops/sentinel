@@ -29,9 +29,9 @@ pub fn cors_middleware(origins: Vec<String>) -> CorsLayer {
 }
 
 /// Request logging middleware
-pub async fn logging_middleware<B>(
-    req: Request<B>,
-    next: Next<B>,
+pub async fn logging_middleware(
+    req: Request,
+    next: Next,
 ) -> Result<Response, StatusCode> {
     let method = req.method().clone();
     let uri = req.uri().clone();
@@ -46,9 +46,9 @@ pub async fn logging_middleware<B>(
 }
 
 /// Error handling middleware
-pub async fn error_handling_middleware<B>(
-    req: Request<B>,
-    next: Next<B>,
+pub async fn error_handling_middleware(
+    req: Request,
+    next: Next,
 ) -> impl IntoResponse {
     let response = next.run(req).await;
 

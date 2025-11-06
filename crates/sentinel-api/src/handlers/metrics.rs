@@ -45,16 +45,9 @@ pub async fn metrics_handler(
 ) -> Result<String, StatusCode> {
     debug!("Metrics endpoint called");
 
-    match state.handle.render() {
-        Ok(metrics) => {
-            debug!("Rendered {} bytes of metrics", metrics.len());
-            Ok(metrics)
-        }
-        Err(e) => {
-            warn!("Failed to render metrics: {}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    }
+    let metrics = state.handle.render();
+    debug!("Rendered {} bytes of metrics", metrics.len());
+    Ok(metrics)
 }
 
 #[cfg(test)]
