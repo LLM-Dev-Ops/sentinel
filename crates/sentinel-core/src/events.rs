@@ -22,7 +22,6 @@ pub struct TelemetryEvent {
     pub timestamp: DateTime<Utc>,
 
     /// Service name
-    #[validate(length(min = 1, max = 255))]
     pub service_name: ServiceId,
 
     /// Trace ID for distributed tracing
