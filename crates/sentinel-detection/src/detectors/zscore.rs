@@ -1,7 +1,7 @@
 //! Z-Score anomaly detector for identifying statistical outliers.
 
 use crate::{
-    baseline::{Baseline, BaselineKey, BaselineManager},
+    baseline::{BaselineKey, BaselineManager},
     detectors::DetectionConfig,
     stats, Detector, DetectorStats, DetectorType,
 };
@@ -12,7 +12,7 @@ use llm_sentinel_core::{
     Result,
 };
 use std::{collections::HashMap, sync::Arc};
-use tracing::{debug, warn};
+use tracing::debug;
 
 /// Z-Score detector configuration
 #[derive(Debug, Clone)]

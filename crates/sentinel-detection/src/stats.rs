@@ -1,6 +1,6 @@
 //! Statistical utility functions for anomaly detection.
 
-use statrs::statistics::{Data, OrderStatistics, Statistics};
+use statrs::statistics::{Data, Distribution, OrderStatistics};
 
 /// Calculate mean of a slice
 pub fn mean(data: &[f64]) -> f64 {
@@ -57,7 +57,7 @@ pub fn iqr(data: &[f64]) -> (f64, f64, f64) {
     let mut sorted = data.to_vec();
     sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    let data_obj = Data::new(sorted);
+    let mut data_obj = Data::new(sorted);
     let q1 = data_obj.lower_quartile();
     let q3 = data_obj.upper_quartile();
     let iqr_value = q3 - q1;
@@ -74,7 +74,7 @@ pub fn percentile(data: &[f64], p: f64) -> f64 {
     let mut sorted = data.to_vec();
     sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    let data_obj = Data::new(sorted);
+    let mut data_obj = Data::new(sorted);
     data_obj.percentile(p as usize)
 }
 

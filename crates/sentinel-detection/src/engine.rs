@@ -196,18 +196,22 @@ impl DetectionEngine {
                     let mut stats = self.stats.write().await;
                     stats.update(true);
 
-                    // Record metrics
+                    // Record metrics - convert to owned strings for 'static lifetime
+                    let detector_name = detector.name().to_string();
+                    let anomaly_type_str = anomaly.anomaly_type.to_string();
+                    let severity_str = anomaly.severity.to_string();
+
                     metrics::counter!(
                         "sentinel_anomalies_detected_total",
-                        "detector" => detector.name(),
-                        "type" => anomaly.anomaly_type.to_string(),
-                        "severity" => anomaly.severity.to_string()
+                        "detector" => detector_name.clone(),
+                        "type" => anomaly_type_str,
+                        "severity" => severity_str
                     )
                     .increment(1);
 
                     metrics::histogram!(
                         "sentinel_detection_duration_seconds",
-                        "detector" => detector.name()
+                        "detector" => detector_name
                     )
                     .record(elapsed.as_secs_f64());
 
