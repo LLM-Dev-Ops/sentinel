@@ -75,6 +75,14 @@ pub struct RabbitMqAlerter {
     config: RabbitMqConfig,
 }
 
+impl std::fmt::Debug for RabbitMqAlerter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RabbitMqAlerter")
+            .field("config", &self.config)
+            .finish()
+    }
+}
+
 impl RabbitMqAlerter {
     /// Create a new RabbitMQ alerter
     pub async fn new(config: RabbitMqConfig) -> Result<Self> {

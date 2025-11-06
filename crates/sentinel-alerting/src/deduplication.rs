@@ -93,6 +93,15 @@ pub struct AlertDeduplicator {
     config: DeduplicationConfig,
 }
 
+impl std::fmt::Debug for AlertDeduplicator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AlertDeduplicator")
+            .field("config", &self.config)
+            .field("entries_count", &self.entries.len())
+            .finish()
+    }
+}
+
 impl AlertDeduplicator {
     /// Create a new deduplicator
     pub fn new(config: DeduplicationConfig) -> Self {

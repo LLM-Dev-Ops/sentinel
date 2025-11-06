@@ -73,6 +73,14 @@ pub struct WebhookAlerter {
     config: WebhookConfig,
 }
 
+impl std::fmt::Debug for WebhookAlerter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WebhookAlerter")
+            .field("config", &self.config)
+            .finish()
+    }
+}
+
 impl WebhookAlerter {
     /// Create a new webhook alerter
     pub fn new(config: WebhookConfig) -> Result<Self> {
