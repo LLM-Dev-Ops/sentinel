@@ -52,6 +52,15 @@ pub struct IqrDetector {
     stats: DetectorStats,
 }
 
+impl std::fmt::Debug for IqrDetector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("IqrDetector")
+            .field("config", &self.config)
+            .field("stats", &self.stats)
+            .finish()
+    }
+}
+
 impl IqrDetector {
     /// Create a new IQR detector
     pub fn new(config: IqrConfig, baseline_manager: Arc<BaselineManager>) -> Self {

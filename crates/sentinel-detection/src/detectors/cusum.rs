@@ -81,6 +81,16 @@ pub struct CusumDetector {
     stats: DetectorStats,
 }
 
+impl std::fmt::Debug for CusumDetector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CusumDetector")
+            .field("config", &self.config)
+            .field("states_count", &self.states.len())
+            .field("stats", &self.stats)
+            .finish()
+    }
+}
+
 impl CusumDetector {
     /// Create a new CUSUM detector
     pub fn new(config: CusumConfig, baseline_manager: Arc<BaselineManager>) -> Self {

@@ -157,6 +157,16 @@ pub struct BaselineManager {
     baselines: Arc<DashMap<BaselineKey, Baseline>>,
 }
 
+impl std::fmt::Debug for BaselineManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BaselineManager")
+            .field("window_size", &self.window_size)
+            .field("windows_count", &self.windows.len())
+            .field("baselines_count", &self.baselines.len())
+            .finish()
+    }
+}
+
 impl BaselineManager {
     /// Create a new baseline manager
     pub fn new(window_size: usize) -> Self {

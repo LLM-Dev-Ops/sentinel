@@ -75,6 +75,15 @@ pub struct DetectionEngine {
     stats: Arc<RwLock<EngineStats>>,
 }
 
+impl std::fmt::Debug for DetectionEngine {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DetectionEngine")
+            .field("config", &self.config)
+            .field("detectors_count", &self.detectors.len())
+            .finish()
+    }
+}
+
 /// Engine statistics
 #[derive(Debug, Clone)]
 pub struct EngineStats {

@@ -48,6 +48,15 @@ pub struct MadDetector {
     stats: DetectorStats,
 }
 
+impl std::fmt::Debug for MadDetector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MadDetector")
+            .field("config", &self.config)
+            .field("stats", &self.stats)
+            .finish()
+    }
+}
+
 impl MadDetector {
     /// Create a new MAD detector
     pub fn new(config: MadConfig, baseline_manager: Arc<BaselineManager>) -> Self {

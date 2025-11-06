@@ -53,6 +53,15 @@ pub struct ZScoreDetector {
     stats: DetectorStats,
 }
 
+impl std::fmt::Debug for ZScoreDetector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ZScoreDetector")
+            .field("config", &self.config)
+            .field("stats", &self.stats)
+            .finish()
+    }
+}
+
 impl ZScoreDetector {
     /// Create a new Z-Score detector
     pub fn new(config: ZScoreConfig, baseline_manager: Arc<BaselineManager>) -> Self {
