@@ -1,0 +1,5 @@
+# Core dependencies
+kafka-python>=2.0.2
+
+# Optional async support
+aiokafka>=0.8.0

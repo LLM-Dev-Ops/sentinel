@@ -1,0 +1,118 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-sentinel-sdk"
+version = "0.1.0"
+description = "Python SDK for LLM Sentinel - Send LLM telemetry events for anomaly detection"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "LLM DevOps Team", email = "dev@llm-dev-ops.io"}
+]
+maintainers = [
+    {name = "LLM DevOps Team", email = "dev@llm-dev-ops.io"}
+]
+keywords = ["llm", "monitoring", "observability", "anomaly-detection", "sentinel", "kafka", "telemetry", "llm-ops", "mlops"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+]
+
+dependencies = [
+    "kafka-python>=2.0.2",
+]
+
+[project.optional-dependencies]
+async = [
+    "aiokafka>=0.8.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "flake8>=6.0.0",
+    "types-setuptools",
+]
+all = [
+    "llm-sentinel-sdk[async,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/llm-dev-ops/sentinel"
+Documentation = "https://github.com/llm-dev-ops/sentinel/blob/main/sdks/python/README.md"
+Repository = "https://github.com/llm-dev-ops/sentinel"
+Issues = "https://github.com/llm-dev-ops/sentinel/issues"
+Changelog = "https://github.com/llm-dev-ops/sentinel/blob/main/sdks/python/CHANGELOG.md"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sentinel_sdk*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=sentinel_sdk --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.coverage.run]
+source = ["sentinel_sdk"]
+omit = ["tests/*", "**/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]

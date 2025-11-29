@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include sentinel_sdk *.py
+recursive-include sentinel_sdk py.typed
