@@ -6,11 +6,15 @@
 //! - Storage: InfluxDB time-series storage
 //! - Alerting: RabbitMQ alert publisher
 //! - API: REST API server
+//! - Benchmarks: Canonical benchmark interface
 
 use anyhow::{Context, Result};
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use llm_sentinel_alerting::{prelude::*, rabbitmq::RetryConfig};
 use llm_sentinel_api::prelude::*;
+use llm_sentinel_benchmarks::{
+    run_all_benchmarks, run_all_benchmarks_parallel, BenchmarkIO, generate_summary,
+};
 use llm_sentinel_core::config::Config;
 use llm_sentinel_detection::prelude::*;
 use llm_sentinel_ingestion::prelude::*;
@@ -25,20 +29,49 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 #[clap(name = "sentinel", version, about = "LLM observability and anomaly detection")]
 struct Cli {
     /// Configuration file path
-    #[clap(short, long, default_value = "config/sentinel.yaml")]
+    #[clap(short, long, default_value = "config/sentinel.yaml", global = true)]
     config: PathBuf,
 
     /// Log level (trace, debug, info, warn, error)
-    #[clap(long, env = "SENTINEL_LOG_LEVEL", default_value = "info")]
+    #[clap(long, env = "SENTINEL_LOG_LEVEL", default_value = "info", global = true)]
     log_level: String,
 
     /// Enable JSON logging
-    #[clap(long, env = "SENTINEL_LOG_JSON")]
+    #[clap(long, env = "SENTINEL_LOG_JSON", global = true)]
     log_json: bool,
 
     /// Dry run mode (don't start services)
-    #[clap(long)]
+    #[clap(long, global = true)]
     dry_run: bool,
+
+    /// Subcommand to execute
+    #[clap(subcommand)]
+    command: Option<Commands>,
+}
+
+/// Available subcommands
+#[derive(Debug, Subcommand)]
+enum Commands {
+    /// Run benchmarks and write results to canonical output directories
+    Run {
+        /// Run benchmarks in parallel
+        #[clap(long)]
+        parallel: bool,
+
+        /// Output directory for benchmark results
+        #[clap(long, default_value = "benchmarks/output")]
+        output: PathBuf,
+
+        /// Only print results, don't write to files
+        #[clap(long)]
+        dry_run: bool,
+
+        /// Output results as JSON to stdout
+        #[clap(long)]
+        json: bool,
+    },
+    /// Start the sentinel service (default if no subcommand given)
+    Serve,
 }
 
 #[tokio::main]
@@ -49,11 +82,119 @@ async fn main() -> Result<()> {
     init_logging(&cli)?;
 
     info!("Starting LLM-Sentinel v{}", env!("CARGO_PKG_VERSION"));
+
+    // Handle subcommands
+    match cli.command {
+        Some(Commands::Run {
+            parallel,
+            output,
+            dry_run,
+            json,
+        }) => {
+            run_benchmarks_command(parallel, output, dry_run, json).await
+        }
+        Some(Commands::Serve) | None => {
+            run_serve_command(&cli).await
+        }
+    }
+}
+
+/// Run the benchmarks subcommand
+async fn run_benchmarks_command(
+    parallel: bool,
+    output: PathBuf,
+    dry_run: bool,
+    json_output: bool,
+) -> Result<()> {
+    info!("Running benchmarks...");
+
+    // Execute benchmarks
+    let results = if parallel {
+        info!("Running benchmarks in parallel mode");
+        run_all_benchmarks_parallel().await
+    } else {
+        info!("Running benchmarks sequentially");
+        run_all_benchmarks().await
+    };
+
+    info!("Completed {} benchmarks", results.len());
+
+    // Output results
+    if json_output {
+        let json = serde_json::to_string_pretty(&results)?;
+        println!("{}", json);
+    } else {
+        // Print summary table
+        println!("\n{}", "=".repeat(80));
+        println!("LLM-Sentinel Benchmark Results");
+        println!("{}", "=".repeat(80));
+        println!(
+            "{:<25} {:<20} {:<30}",
+            "Target", "Duration (ms)", "Key Metrics"
+        );
+        println!("{}", "-".repeat(80));
+
+        for result in &results {
+            let duration = result
+                .metrics
+                .get("total_duration_ms")
+                .and_then(|v| v.as_u64())
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "N/A".to_string());
+
+            let ops_per_sec = result
+                .metrics
+                .get("ops_per_second")
+                .or_else(|| result.metrics.get("events_per_second"))
+                .and_then(|v| v.as_f64())
+                .map(|v| format!("{:.0} ops/s", v))
+                .unwrap_or_else(|| "N/A".to_string());
+
+            println!("{:<25} {:<20} {:<30}", result.target_id, duration, ops_per_sec);
+        }
+
+        println!("{}", "=".repeat(80));
+        println!(
+            "Total: {} benchmarks executed at {}",
+            results.len(),
+            chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC")
+        );
+        println!();
+    }
+
+    // Write results to files unless dry_run
+    if !dry_run {
+        let io = BenchmarkIO::new(&output);
+        io.ensure_directories()?;
+
+        // Write individual results
+        io.write_results(&results)?;
+
+        // Write combined results
+        io.write_combined_results(&results)?;
+
+        // Generate and write summary
+        let summary = generate_summary(&results);
+        let summary_path = io.write_summary(&summary)?;
+
+        info!("Results written to: {:?}", output);
+        info!("Summary written to: {:?}", summary_path);
+
+        if !json_output {
+            println!("Results written to: {}", output.display());
+            println!("Summary: {}/summary.md", output.display());
+        }
+    }
+
+    Ok(())
+}
+
+/// Run the serve subcommand (default behavior)
+async fn run_serve_command(cli: &Cli) -> Result<()> {
     info!("Loading configuration from: {:?}", cli.config);
 
     // Load configuration
-    let config = Config::from_file(&cli.config)
-        .context("Failed to load configuration")?;
+    let config = Config::from_file(&cli.config).context("Failed to load configuration")?;
 
     info!("Configuration loaded successfully");
 

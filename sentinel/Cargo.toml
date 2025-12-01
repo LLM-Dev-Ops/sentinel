@@ -24,6 +24,10 @@ llm-sentinel-detection = { version = "0.1.0", path = "../crates/sentinel-detecti
 llm-sentinel-storage = { version = "0.1.0", path = "../crates/sentinel-storage" }
 llm-sentinel-alerting = { version = "0.1.0", path = "../crates/sentinel-alerting" }
 llm-sentinel-api = { version = "0.1.0", path = "../crates/sentinel-api" }
+llm-sentinel-benchmarks = { version = "0.1.0", path = "../crates/sentinel-benchmarks" }
+
+# Time
+chrono = { workspace = true }
 
 # Async
 tokio = { workspace = true }
