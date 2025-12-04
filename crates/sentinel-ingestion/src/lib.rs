@@ -7,9 +7,11 @@
 //! - OpenTelemetry Protocol (OTLP) parsing
 //! - Event validation and normalization
 //! - Buffering and batching for efficient processing
+//! - Upstream adapters for LLM DevOps ecosystem integration
 
 #![warn(missing_debug_implementations, rust_2018_idioms, unreachable_pub)]
 
+pub mod adapters;
 pub mod kafka;
 pub mod otlp;
 pub mod pipeline;
@@ -36,6 +38,10 @@ pub trait Ingester: Send + Sync {
 
 /// Re-export commonly used types
 pub mod prelude {
+    pub use crate::adapters::{
+        AnalyticsHubAdapter, ConfigManagerAdapter, ObservatoryAdapter, ShieldAdapter,
+        UpstreamAdapter,
+    };
     pub use crate::kafka::KafkaIngester;
     pub use crate::otlp::OtlpParser;
     pub use crate::pipeline::{IngestionPipeline, PipelineConfig};
