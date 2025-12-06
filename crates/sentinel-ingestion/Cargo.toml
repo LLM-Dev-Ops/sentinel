@@ -49,6 +49,11 @@ regex = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
 
+# LLM DevOps Infrastructure (Phase 2B)
+# Services layer - OpenTelemetry integration for distributed tracing
+infra-otel = { workspace = true }
+infra-errors = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
 mockall = { workspace = true }

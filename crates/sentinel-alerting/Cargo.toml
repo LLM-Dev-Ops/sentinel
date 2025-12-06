@@ -51,6 +51,13 @@ hex = { workspace = true }
 # Collections
 dashmap = { workspace = true }
 
+# LLM DevOps Infrastructure (Phase 2B)
+# Application layer - retry logic and rate limiting for alerts
+infra-retry = { workspace = true }
+infra-rate-limit = { workspace = true }
+infra-mq = { workspace = true }
+infra-errors = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
 mockall = { workspace = true }

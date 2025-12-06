@@ -56,5 +56,11 @@ metrics = { workspace = true }
 once_cell = { workspace = true }
 dashmap = { workspace = true }
 
+# LLM DevOps Infrastructure (Phase 2B)
+# Full infrastructure layer access for main binary
+infra-otel = { workspace = true }
+infra-config = { workspace = true }
+infra-errors = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

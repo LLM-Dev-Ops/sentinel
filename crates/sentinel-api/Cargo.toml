@@ -48,6 +48,11 @@ chrono = { workspace = true }
 # Utilities
 uuid = { workspace = true }
 
+# LLM DevOps Infrastructure (Phase 2B)
+# Services layer - OpenTelemetry for API tracing
+infra-otel = { workspace = true }
+infra-errors = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
 axum-test = "18.2"

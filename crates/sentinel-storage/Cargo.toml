@@ -46,6 +46,12 @@ chrono = { workspace = true }
 # Utilities
 once_cell = { workspace = true }
 
+# LLM DevOps Infrastructure (Phase 2B)
+# Application layer - caching abstraction and retry logic
+infra-cache = { workspace = true }
+infra-retry = { workspace = true }
+infra-errors = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
 mockall = { workspace = true }

@@ -43,5 +43,13 @@ metrics = { workspace = true }
 once_cell = { workspace = true }
 bytes = { workspace = true }
 
+# LLM DevOps Infrastructure (Phase 2B)
+# Foundation layer - unified error handling
+infra-errors = { workspace = true }
+# Utilities layer - configuration and ID generation
+infra-config = { workspace = true }
+infra-json = { workspace = true }
+infra-id = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util"] }

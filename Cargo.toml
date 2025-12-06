@@ -112,6 +112,23 @@ llm-shield-sdk = { git = "https://github.com/LLM-Dev-Ops/shield.git", branch = "
 llm-analytics-hub = { git = "https://github.com/LLM-Dev-Ops/analytics-hub.git", branch = "main" }
 llm-config-core = { git = "https://github.com/LLM-Dev-Ops/config-manager.git", branch = "main" }
 
+# LLM DevOps Infrastructure Dependencies (Phase 2B)
+# Core infrastructure crates from the shared Infra layer
+# Layer 0: Foundation
+infra-errors = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+# Layer 1: Utilities
+infra-config = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+infra-json = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+infra-id = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+# Layer 2: Services
+infra-otel = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+infra-mq = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+# Layer 3: Application
+infra-cache = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+infra-retry = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+infra-rate-limit = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+infra-llm-client = { git = "https://github.com/LLM-Dev-Ops/infra.git", branch = "main" }
+
 [profile.dev]
 opt-level = 0
 debug = true
