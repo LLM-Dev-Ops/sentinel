@@ -31,7 +31,7 @@ crossfire = "2.1"
 ractor = "0.12"
 
 # HTTP & gRPC
-axum = { version = "0.7", features = ["macros", "ws"] }
+axum = { version = "0.8", features = ["macros", "ws"] }
 tonic = { version = "0.12", features = ["gzip", "tls"] }
 prost = "0.13"
 tower = { version = "0.5", features = ["full"] }
