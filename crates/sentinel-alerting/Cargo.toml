@@ -21,7 +21,7 @@ tokio = { workspace = true }
 async-trait = { workspace = true }
 
 # Messaging
-lapin = "2.5"
+lapin = "3.7"
 
 # HTTP Client
 reqwest = { workspace = true }
