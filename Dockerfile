@@ -2,7 +2,7 @@
 # Optimized for production deployment with minimal image size
 
 # Stage 1: Build dependencies (cached layer)
-FROM rust:1.75-slim-bookworm AS chef
+FROM rust:1.92-slim-bookworm AS chef
 RUN cargo install cargo-chef
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Stage 4: Build application
-FROM rust:1.75-slim-bookworm AS builder
+FROM rust:1.92-slim-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
