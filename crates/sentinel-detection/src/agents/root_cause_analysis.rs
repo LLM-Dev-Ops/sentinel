@@ -121,7 +121,7 @@ pub struct RcaInvocationResult {
 }
 
 /// Agent statistics
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct RcaAgentStats {
     /// Total invocations
     pub invocations: u64,
@@ -908,7 +908,7 @@ impl RootCauseAnalysisAgent {
         confidence: f64,
         input: &RcaAgentInput,
     ) -> RootCauseHypothesis {
-        let category = match *metric {
+        let category = match metric {
             "cpu_percent" | "memory_percent" => RootCauseCategory::ResourceExhaustion,
             "disk_io" | "network_io" => RootCauseCategory::Infrastructure,
             _ => RootCauseCategory::Unknown,
@@ -1100,6 +1100,13 @@ impl RootCauseAnalysisAgent {
                     h.category,
                     h.root_cause_service,
                     h.confidence * 100.0
+                )
+            }
+            (RcaAnalysisStatus::RootCauseIdentified, None) | (RcaAnalysisStatus::MultipleCandidates, None) => {
+                format!(
+                    "Analysis indicated root cause but no hypothesis generated for {} incident in {}.",
+                    input.primary_incident.incident_type,
+                    input.primary_incident.service_name
                 )
             }
             (RcaAnalysisStatus::Inconclusive, _) => {

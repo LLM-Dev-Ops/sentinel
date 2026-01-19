@@ -1,0 +1,140 @@
+# Cloud Build configuration for LLM-Sentinel
+# Builds and deploys the unified sentinel service to Cloud Run
+#
+# Usage:
+#   gcloud builds submit --config cloudbuild.yaml \
+#     --substitutions=_ENV=dev,_REGION=us-central1
+
+substitutions:
+  _ENV: dev
+  _REGION: us-central1
+  _SERVICE_NAME: llm-sentinel
+  _REPOSITORY: llm-sentinel
+  _IMAGE_TAG: latest
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+  dynamic_substitutions: true
+
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_IMAGE_TAG}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:latest'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_ENV}'
+      - '--cache-from'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:latest'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+    timeout: 1200s
+
+  # Step 2: Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}'
+    waitFor: ['build']
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}-${_ENV}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_IMAGE_TAG}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--cpu'
+      - '2'
+      - '--memory'
+      - '2Gi'
+      - '--min-instances'
+      - '1'
+      - '--max-instances'
+      - '10'
+      - '--concurrency'
+      - '80'
+      - '--timeout'
+      - '300s'
+      - '--set-env-vars'
+      - 'PLATFORM_ENV=${_ENV}'
+      - '--set-env-vars'
+      - 'SERVICE_NAME=${_SERVICE_NAME}'
+      - '--set-env-vars'
+      - 'SERVICE_VERSION=${_IMAGE_TAG}'
+      - '--set-env-vars'
+      - 'RUST_LOG=info'
+      - '--set-secrets'
+      - 'RUVECTOR_API_KEY=ruvector-api-key:latest'
+      - '--set-secrets'
+      - 'RUVECTOR_SERVICE_URL=ruvector-service-url:latest'
+      - '--set-secrets'
+      - 'TELEMETRY_ENDPOINT=observatory-endpoint:latest'
+      - '--labels'
+      - 'env=${_ENV},service=${_SERVICE_NAME},managed-by=cloud-build'
+      - '--service-account'
+      - 'llm-sentinel-sa@${PROJECT_ID}.iam.gserviceaccount.com'
+    waitFor: ['push']
+
+  # Step 4: Verify deployment
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'verify'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        set -e
+        echo "Waiting for service to be ready..."
+        sleep 10
+
+        SERVICE_URL=$(gcloud run services describe ${_SERVICE_NAME}-${_ENV} \
+          --region=${_REGION} \
+          --format='value(status.url)')
+
+        echo "Service URL: $${SERVICE_URL}"
+
+        # Health check
+        echo "Running health check..."
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$${SERVICE_URL}/health/ready")
+
+        if [ "$${HTTP_CODE}" = "200" ]; then
+          echo "Health check passed!"
+        else
+          echo "Health check failed with HTTP code: $${HTTP_CODE}"
+          exit 1
+        fi
+
+        # Verify agent endpoints
+        echo "Verifying agent endpoints..."
+        for endpoint in anomaly drift alerting correlation rca; do
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$${SERVICE_URL}/api/v1/agents/$${endpoint}/stats")
+          echo "  /api/v1/agents/$${endpoint}/stats: $${HTTP_CODE}"
+        done
+
+        echo "Deployment verification complete!"
+    waitFor: ['deploy']
+
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_IMAGE_TAG}'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:latest'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE_NAME}:${_ENV}'
+
+timeout: 1800s

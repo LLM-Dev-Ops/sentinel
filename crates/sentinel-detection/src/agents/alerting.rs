@@ -177,12 +177,20 @@ impl RuvectorClient for NoopRuvectorClient {
 /// - Exactly ONE DecisionEvent per invocation
 /// - Deterministic behavior
 /// - No remediation, retry, or orchestration logic
-#[derive(Debug)]
 pub struct AlertingAgent {
     /// Agent configuration
     config: AlertingAgentConfig,
     /// ruvector-service client
     ruvector: Arc<dyn RuvectorClient>,
+}
+
+impl std::fmt::Debug for AlertingAgent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AlertingAgent")
+            .field("config", &self.config)
+            .field("ruvector", &"<RuvectorClient>")
+            .finish()
+    }
 }
 
 impl AlertingAgent {
@@ -324,7 +332,7 @@ impl AlertingAgent {
         info!(
             decision_id = %decision.decision_id,
             status = %status,
-            alert_raised = decision.outputs.alert_raised,
+            anomaly_detected = decision.outputs.anomaly_detected,
             confidence = decision.confidence,
             processing_ms = start.elapsed().as_millis(),
             "Alerting decision complete"

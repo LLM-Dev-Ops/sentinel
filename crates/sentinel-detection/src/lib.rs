@@ -10,6 +10,7 @@
 
 #![warn(missing_debug_implementations, rust_2018_idioms, unreachable_pub)]
 
+pub mod agents;
 pub mod baseline;
 pub mod detectors;
 pub mod engine;
@@ -102,9 +103,20 @@ impl DetectorStats {
 
 /// Re-export commonly used types
 pub mod prelude {
+    pub use crate::agents::{
+        // Core agent types
+        AgentId, AgentInput, AgentOutput, AgentVersion,
+        ConstraintApplied, DecisionEvent, DecisionType,
+        // Anomaly detection agent
+        AnomalyDetectionAgent,
+        // Alerting agent
+        AlertingAgent, AlertEvaluationStatus, AlertingAgentInput, AlertingAgentOutput,
+        AlertingFailureMode, AlertingOutputMetadata, AlertingRule, SuppressionConfig,
+    };
     pub use crate::baseline::{Baseline, BaselineManager};
     pub use crate::detectors::{
-        cusum::CusumDetector, iqr::IqrDetector, mad::MadDetector, zscore::ZScoreDetector,
+        cusum::CusumDetector, drift::DriftDetector, iqr::IqrDetector, mad::MadDetector,
+        zscore::ZScoreDetector,
     };
     pub use crate::engine::{DetectionEngine, EngineConfig};
     pub use crate::{Detector, DetectorStats, DetectorType};

@@ -46,6 +46,12 @@ chrono = { workspace = true }
 # Utilities
 once_cell = { workspace = true }
 
+# Crypto (for input hashing in DecisionEvent)
+sha2 = "0.10"
+
+# UUID (for agent identifiers)
+uuid = { workspace = true }
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
 approx = "0.5"

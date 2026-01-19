@@ -144,7 +144,7 @@ impl Default for IncidentCorrelationAgentConfig {
 // =============================================================================
 
 /// Agent statistics for monitoring
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct CorrelationAgentStats {
     /// Total invocations
     pub invocations: u64,
@@ -1226,8 +1226,7 @@ impl IncidentCorrelationAgent {
 
     /// Handle Edge Function request
     pub async fn handle_request(&self, body: &[u8]) -> Result<serde_json::Value> {
-        let input: IncidentCorrelationInput = serde_json::from_slice(body)
-            .map_err(|e| Error::serialization(e))?;
+        let input: IncidentCorrelationInput = serde_json::from_slice(body)?;
         let result = self.invoke(&input).await?;
         Ok(result.decision_event.to_json())
     }

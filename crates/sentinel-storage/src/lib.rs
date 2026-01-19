@@ -45,10 +45,52 @@ pub trait Storage: Send + Sync {
     async fn health_check(&self) -> Result<()>;
 }
 
+/// No-op storage for API-only deployments
+#[derive(Debug, Clone, Default)]
+pub struct NoopStorage;
+
+impl NoopStorage {
+    /// Create a new no-op storage
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+#[async_trait]
+impl Storage for NoopStorage {
+    async fn write_telemetry(&self, _event: &TelemetryEvent) -> Result<()> {
+        Ok(())
+    }
+
+    async fn write_anomaly(&self, _anomaly: &AnomalyEvent) -> Result<()> {
+        Ok(())
+    }
+
+    async fn write_telemetry_batch(&self, _events: &[TelemetryEvent]) -> Result<()> {
+        Ok(())
+    }
+
+    async fn write_anomaly_batch(&self, _anomalies: &[AnomalyEvent]) -> Result<()> {
+        Ok(())
+    }
+
+    async fn query_telemetry(&self, _query: query::TelemetryQuery) -> Result<Vec<TelemetryEvent>> {
+        Ok(vec![])
+    }
+
+    async fn query_anomalies(&self, _query: query::AnomalyQuery) -> Result<Vec<AnomalyEvent>> {
+        Ok(vec![])
+    }
+
+    async fn health_check(&self) -> Result<()> {
+        Ok(())
+    }
+}
+
 /// Re-export commonly used types
 pub mod prelude {
     pub use crate::cache::{BaselineCache, CacheConfig};
     pub use crate::influxdb::{InfluxDbStorage, InfluxDbConfig};
     pub use crate::query::{AnomalyQuery, TelemetryQuery, TimeRange};
-    pub use crate::Storage;
+    pub use crate::{NoopStorage, Storage};
 }

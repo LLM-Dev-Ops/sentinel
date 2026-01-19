@@ -48,7 +48,8 @@ pub use root_cause_analysis::RootCauseAnalysisAgent;
 
 // Re-export core contract types
 pub use contract::{
-    AgentId, AgentInput, AgentOutput, AgentVersion, ConstraintApplied, DecisionEvent, DecisionType,
+    AgentId, AgentInput, AgentOutput, AgentVersion, ConstraintApplied, ConstraintType,
+    DecisionContext, DecisionEvent, DecisionType, ExecutionRef, OutputMetadata,
 };
 
 // Re-export Alerting agent types

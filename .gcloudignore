@@ -1,0 +1,59 @@
+# .gcloudignore for Cloud Build
+# This file specifies which files should NOT be uploaded to Cloud Build
+
+# First, ignore .gitignore patterns but with overrides
+#include:.gitignore
+
+# Include Cargo.lock explicitly (even though it's in .gitignore)
+!Cargo.lock
+
+# Exclude build artifacts (CRITICAL - these are large)
+target/
+**/target/
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude git
+.git/
+.gitignore
+.gitattributes
+
+# Exclude CI/CD and documentation
+.github/
+docs/
+*.md
+
+# Exclude local config
+.env
+.env.*
+
+# Exclude test data
+tests/
+benches/
+examples/
+
+# Exclude temporary and log files
+tmp/
+*.tmp
+*.log
+logs/
+
+# Exclude coverage reports
+coverage/
+tarpaulin-report.html
+criterion/
+
+# Exclude k8s and helm (not needed for docker build)
+k8s/
+helm/
+
+# Exclude data directories
+data/
+baselines/
+
+# Exclude node_modules if any
+node_modules/

@@ -1,171 +1,58 @@
 # LLM-Sentinel Configuration
-# This is a complete example configuration file
+# This config matches the expected schema from sentinel-core/config.rs
 
 # Server configuration
 server:
-  environment: "production"
-  log_level: "info"
-  log_format: "json"
-  metrics_port: 9090
+  host: "0.0.0.0"
+  port: 8080
+  worker_threads: 4
+  request_timeout_secs: 30
+  shutdown_timeout_secs: 10
 
 # Ingestion configuration
 ingestion:
-  # Kafka consumer settings
-  kafka:
-    brokers:
-      - "localhost:9092"
-    topic: "llm.telemetry"
-    group_id: "sentinel-consumer"
-    session_timeout_ms: 6000
-    enable_auto_commit: false
-    auto_offset_reset: "latest"
-    max_poll_records: 500
-    fetch_min_bytes: 1024
-    fetch_max_wait_ms: 500
-
-  # OTLP parsing settings
-  parsing:
-    max_text_length: 10000
-    enable_sanitization: true
-    sanitize_patterns:
-      - "password"
-      - "api_key"
-      - "secret"
-
-  # Event validation settings
-  validation:
-    min_latency_ms: 0.1
-    max_latency_ms: 300000.0  # 5 minutes
-    max_tokens: 100000
-    max_cost_usd: 100.0
-    enable_pii_detection: true
+  buffer_size: 10000
+  batch_size: 100
+  batch_timeout_ms: 1000
 
 # Detection configuration
 detection:
-  # Enabled detector types
-  enabled_detectors:
-    - "zscore"
-    - "iqr"
-    - "mad"
-    - "cusum"
-
-  # Baseline configuration
-  baseline:
-    window_size: 1000
-    min_samples: 10
-    update_interval_secs: 60
-    enable_persistence: true
-    persistence_path: "/var/lib/sentinel/baselines"
-
-  # Z-Score detector
-  zscore:
-    threshold: 3.0
-    sensitivity: "medium"
-    metrics:
-      - "latency_ms"
-      - "total_tokens"
-      - "cost_usd"
-
-  # IQR detector
-  iqr:
-    multiplier: 1.5
-    metrics:
-      - "latency_ms"
-      - "total_tokens"
-
-  # MAD detector
-  mad:
-    threshold: 3.5
-    metrics:
-      - "latency_ms"
-
-  # CUSUM detector
-  cusum:
-    threshold: 5.0
-    drift: 0.5
-    metrics:
-      - "latency_ms"
-
-# Storage configuration
-storage:
-  # InfluxDB settings
-  influxdb:
-    url: "http://localhost:8086"
-    org: "sentinel"
-    telemetry_bucket: "telemetry"
-    anomaly_bucket: "anomalies"
-    token: "${INFLUXDB_TOKEN}"
-    batch_size: 100
-    timeout_secs: 10
-
-  # Cache settings
-  cache:
-    max_capacity: 10000
-    ttl_secs: 300  # 5 minutes
-    tti_secs: 60   # 1 minute idle timeout
-    enable_metrics: true
-
-  # Redis (optional distributed cache)
-  redis:
-    enabled: false
-    url: "redis://localhost:6379"
-    key_prefix: "sentinel:"
-    ttl_secs: 300
+  engines:
+    - engine_type: "statistical"
+      methods:
+        - "zscore"
+        - "iqr"
+        - "mad"
+        - "cusum"
+      settings: {}
+  workers: 4
+  timeout_ms: 5000
+  enable_ml: false
+  model_update_interval_secs: 3600
 
 # Alerting configuration
 alerting:
-  # RabbitMQ settings
-  rabbitmq:
-    url: "amqp://localhost:5672"
-    exchange: "sentinel.alerts"
-    exchange_type: "topic"
-    routing_key_prefix: "alert"
-    persistent: true
-    timeout_secs: 10
-    retry_config:
-      max_attempts: 3
-      initial_delay_ms: 1000
-      backoff_multiplier: 2.0
-      max_delay_ms: 30000
+  dedup_window_secs: 300
+  batch_size: 100
+  batch_timeout_ms: 5000
 
-  # Webhook settings (backup channel)
-  webhook:
-    enabled: true
-    url: "${WEBHOOK_URL}"
-    method: "POST"
-    timeout_secs: 10
-    max_retries: 3
-    retry_delay_ms: 1000
-    backoff_multiplier: 2.0
-    secret: "${WEBHOOK_SECRET}"
+# Storage configuration
+storage:
+  influxdb:
+    url: "https://us-central1-1.gcp.cloud2.influxdata.com"
+    org: "agentics"
+    bucket: "sentinel"
+    token: "placeholder-will-be-overridden-by-env"
+    timeout_secs: 30
+  cache:
+    cache_type: "moka"
+    max_capacity: 10000
+    ttl_secs: 300
 
-  # Deduplication settings
-  deduplication:
-    enabled: true
-    window_secs: 300  # 5 minutes
-    cleanup_interval_secs: 60
-
-# API configuration
-api:
-  bind_addr: "0.0.0.0:8080"
-  enable_cors: true
-  cors_origins:
-    - "*"
-  timeout_secs: 30
-  max_body_size: 10485760  # 10MB
-  enable_logging: true
-  metrics_path: "/metrics"
-
-# Advanced settings
-advanced:
-  # Thread pool sizes
-  worker_threads: 4
-  blocking_threads: 16
-
-  # Buffer sizes
-  ingestion_buffer_size: 10000
-  detection_buffer_size: 1000
-
-  # Performance tuning
-  enable_cpu_profiling: false
-  enable_memory_profiling: false
+# Observability configuration
+observability:
+  enable_metrics: true
+  metrics_port: 9090
+  enable_tracing: false
+  log_level: "info"
+  log_format: "json"

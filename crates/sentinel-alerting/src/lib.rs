@@ -93,10 +93,36 @@ impl Default for AlertConfig {
     }
 }
 
+/// No-op alerter for API-only deployments
+#[derive(Debug, Clone, Default)]
+pub struct NoopAlerter;
+
+impl NoopAlerter {
+    /// Create a new no-op alerter
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+#[async_trait]
+impl Alerter for NoopAlerter {
+    async fn send(&self, _alert: &AnomalyEvent) -> Result<()> {
+        Ok(())
+    }
+
+    async fn health_check(&self) -> Result<()> {
+        Ok(())
+    }
+
+    fn name(&self) -> &str {
+        "noop"
+    }
+}
+
 /// Re-export commonly used types
 pub mod prelude {
     pub use crate::deduplication::{AlertDeduplicator, DeduplicationConfig};
     pub use crate::rabbitmq::{RabbitMqAlerter, RabbitMqConfig};
     pub use crate::webhook::{WebhookAlerter, WebhookConfig};
-    pub use crate::{AlertConfig, AlertStatus, Alerter};
+    pub use crate::{AlertConfig, AlertStatus, Alerter, NoopAlerter};
 }

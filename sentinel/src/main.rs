@@ -16,7 +16,15 @@ use llm_sentinel_benchmarks::{
     run_all_benchmarks, run_all_benchmarks_parallel, BenchmarkIO, generate_summary,
 };
 use llm_sentinel_core::config::Config;
-use llm_sentinel_detection::prelude::*;
+use llm_sentinel_core::events::TelemetryEvent;
+use llm_sentinel_detection::{
+    agents::{
+        anomaly_detection::{
+            AnomalyDetectionAgent, AnomalyDetectionAgentConfig, DiagnoseCheck,
+        },
+    },
+    prelude::*,
+};
 use llm_sentinel_ingestion::prelude::*;
 use llm_sentinel_storage::prelude::*;
 use std::{path::PathBuf, sync::Arc};
@@ -43,6 +51,10 @@ struct Cli {
     /// Dry run mode (don't start services)
     #[clap(long, global = true)]
     dry_run: bool,
+
+    /// API-only mode (skip storage and alerting initialization)
+    #[clap(long, env = "SENTINEL_API_ONLY", global = true)]
+    api_only: bool,
 
     /// Subcommand to execute
     #[clap(subcommand)]
@@ -72,6 +84,66 @@ enum Commands {
     },
     /// Start the sentinel service (default if no subcommand given)
     Serve,
+    /// Agent management commands (inspect, replay, diagnose)
+    Agent {
+        #[clap(subcommand)]
+        command: AgentCommands,
+    },
+}
+
+/// Agent subcommands following agentics-cli specification
+#[derive(Debug, Subcommand)]
+enum AgentCommands {
+    /// Inspect agent state, baselines, and configuration
+    Inspect {
+        /// Agent name (e.g., "anomaly-detection")
+        #[clap(default_value = "anomaly-detection")]
+        agent: String,
+
+        /// Filter by service name
+        #[clap(long)]
+        service: Option<String>,
+
+        /// Filter by model name
+        #[clap(long)]
+        model: Option<String>,
+
+        /// Output as JSON
+        #[clap(long)]
+        json: bool,
+    },
+    /// Replay a telemetry event through an agent
+    Replay {
+        /// Agent name (e.g., "anomaly-detection")
+        #[clap(default_value = "anomaly-detection")]
+        agent: String,
+
+        /// Event file path (JSON)
+        #[clap(long)]
+        event_file: PathBuf,
+
+        /// Don't persist DecisionEvent
+        #[clap(long)]
+        dry_run: bool,
+
+        /// Show detailed processing steps
+        #[clap(long)]
+        verbose: bool,
+    },
+    /// Run diagnostics on agent health and configuration
+    Diagnose {
+        /// Agent name (e.g., "anomaly-detection")
+        #[clap(default_value = "anomaly-detection")]
+        agent: String,
+
+        /// Specific check to run (baselines, detectors, ruvector, all)
+        #[clap(long, default_value = "all")]
+        check: String,
+
+        /// Output as JSON
+        #[clap(long)]
+        json: bool,
+    },
 }
 
 #[tokio::main]
@@ -92,6 +164,9 @@ async fn main() -> Result<()> {
             json,
         }) => {
             run_benchmarks_command(parallel, output, dry_run, json).await
+        }
+        Some(Commands::Agent { command }) => {
+            run_agent_command(command).await
         }
         Some(Commands::Serve) | None => {
             run_serve_command(&cli).await
@@ -189,6 +264,230 @@ async fn run_benchmarks_command(
     Ok(())
 }
 
+/// Run agent commands (inspect, replay, diagnose)
+async fn run_agent_command(command: AgentCommands) -> Result<()> {
+    match command {
+        AgentCommands::Inspect {
+            agent,
+            service,
+            model,
+            json,
+        } => {
+            run_agent_inspect(&agent, service.as_deref(), model.as_deref(), json).await
+        }
+        AgentCommands::Replay {
+            agent,
+            event_file,
+            dry_run,
+            verbose,
+        } => {
+            run_agent_replay(&agent, &event_file, dry_run, verbose).await
+        }
+        AgentCommands::Diagnose {
+            agent,
+            check,
+            json,
+        } => {
+            run_agent_diagnose(&agent, &check, json).await
+        }
+    }
+}
+
+/// Run agent inspect command
+async fn run_agent_inspect(
+    agent_name: &str,
+    service: Option<&str>,
+    model: Option<&str>,
+    json_output: bool,
+) -> Result<()> {
+    match agent_name {
+        "anomaly-detection" => {
+            let config = AnomalyDetectionAgentConfig::default();
+            let agent = AnomalyDetectionAgent::new(config)
+                .context("Failed to create Anomaly Detection Agent")?;
+
+            let result = agent.inspect(service, model).await;
+
+            if json_output {
+                println!("{}", serde_json::to_string_pretty(&result)?);
+            } else {
+                println!("\n{}", "=".repeat(70));
+                println!("ANOMALY DETECTION AGENT INSPECTION");
+                println!("{}", "=".repeat(70));
+                println!("Agent ID:      {}", result.agent_id);
+                println!("Version:       {}", result.agent_version);
+                println!();
+                println!("CONFIGURATION:");
+                println!("  Z-score:  {} (threshold: {})",
+                    if result.config.enable_zscore { "enabled" } else { "disabled" },
+                    result.config.zscore_threshold);
+                println!("  IQR:      {} (multiplier: {})",
+                    if result.config.enable_iqr { "enabled" } else { "disabled" },
+                    result.config.iqr_multiplier);
+                println!("  MAD:      {} (threshold: {})",
+                    if result.config.enable_mad { "enabled" } else { "disabled" },
+                    result.config.mad_threshold);
+                println!("  CUSUM:    {} (threshold: {})",
+                    if result.config.enable_cusum { "enabled" } else { "disabled" },
+                    result.config.cusum_threshold);
+                println!();
+                println!("STATISTICS:");
+                println!("  Invocations:       {}", result.stats.invocations);
+                println!("  Anomalies:         {}", result.stats.anomalies_detected);
+                println!("  Decisions saved:   {}", result.stats.decisions_persisted);
+                println!("  Avg processing:    {:.2}ms", result.stats.avg_processing_ms);
+                println!();
+                println!("BASELINES:");
+                println!("  Total:   {}", result.baseline_stats.total_baselines);
+                println!("  Valid:   {}", result.baseline_stats.valid_baselines);
+                println!("  Window:  {}", result.baseline_stats.window_size);
+                println!();
+
+                if !result.baselines.is_empty() {
+                    println!("{:<20} {:<15} {:<15} {:<10} {:<8} {:<6}",
+                        "Service", "Model", "Metric", "Mean", "StdDev", "Valid");
+                    println!("{}", "-".repeat(70));
+                    for baseline in &result.baselines {
+                        println!("{:<20} {:<15} {:<15} {:<10.2} {:<8.2} {:<6}",
+                            baseline.service,
+                            baseline.model,
+                            baseline.metric,
+                            baseline.mean,
+                            baseline.std_dev,
+                            if baseline.is_valid { "yes" } else { "no" });
+                    }
+                } else {
+                    println!("  (no baselines established yet)");
+                }
+                println!("{}", "=".repeat(70));
+            }
+        }
+        other => {
+            return Err(anyhow::anyhow!("Unknown agent: {}. Available: anomaly-detection", other));
+        }
+    }
+
+    Ok(())
+}
+
+/// Run agent replay command
+async fn run_agent_replay(
+    agent_name: &str,
+    event_file: &PathBuf,
+    dry_run: bool,
+    verbose: bool,
+) -> Result<()> {
+    match agent_name {
+        "anomaly-detection" => {
+            // Read event from file
+            let content = std::fs::read_to_string(event_file)
+                .context("Failed to read event file")?;
+            let event: TelemetryEvent = serde_json::from_str(&content)
+                .context("Failed to parse event JSON")?;
+
+            info!(
+                event_id = %event.event_id,
+                service = %event.service_name,
+                model = %event.model,
+                "Replaying event through Anomaly Detection Agent"
+            );
+
+            let mut config = AnomalyDetectionAgentConfig::default();
+            config.dry_run = dry_run;
+            let agent = AnomalyDetectionAgent::new(config)
+                .context("Failed to create Anomaly Detection Agent")?;
+
+            let result = agent.replay(&event, dry_run).await
+                .context("Replay failed")?;
+
+            if verbose {
+                println!("\n{}", "=".repeat(70));
+                println!("REPLAY RESULT");
+                println!("{}", "=".repeat(70));
+                println!("Decision ID:     {}", result.decision_event.decision_id);
+                println!("Anomaly:         {}", result.decision_event.outputs.anomaly_detected);
+                println!("Confidence:      {:.2}%", result.decision_event.confidence * 100.0);
+                println!("Detectors:       {:?}", result.decision_event.outputs.detectors_evaluated);
+                println!("Triggered by:    {:?}", result.decision_event.outputs.triggered_by);
+                println!("Processing:      {}ms", result.decision_event.outputs.metadata.processing_ms);
+                println!("Persisted:       {}", result.persisted);
+                println!();
+                println!("CONSTRAINTS APPLIED:");
+                for constraint in &result.decision_event.constraints_applied {
+                    println!("  - {} ({}): {} - {}",
+                        constraint.constraint_id,
+                        format!("{:?}", constraint.constraint_type).to_lowercase(),
+                        constraint.value,
+                        if constraint.passed { "PASSED" } else { "FAILED" });
+                }
+                println!("{}", "=".repeat(70));
+            } else {
+                println!("{}", serde_json::to_string_pretty(&result.decision_event)?);
+            }
+
+            if let Some(anomaly) = &result.anomaly_event {
+                if verbose {
+                    println!("\nANOMALY DETECTED:");
+                    println!("  Type:       {}", anomaly.anomaly_type);
+                    println!("  Severity:   {}", anomaly.severity);
+                    println!("  Metric:     {}", anomaly.details.metric);
+                    println!("  Value:      {:.2}", anomaly.details.value);
+                    println!("  Baseline:   {:.2}", anomaly.details.baseline);
+                    println!("  Threshold:  {:.2}", anomaly.details.threshold);
+                }
+            }
+        }
+        other => {
+            return Err(anyhow::anyhow!("Unknown agent: {}. Available: anomaly-detection", other));
+        }
+    }
+
+    Ok(())
+}
+
+/// Run agent diagnose command
+async fn run_agent_diagnose(agent_name: &str, check: &str, json_output: bool) -> Result<()> {
+    match agent_name {
+        "anomaly-detection" => {
+            let config = AnomalyDetectionAgentConfig::default();
+            let agent = AnomalyDetectionAgent::new(config)
+                .context("Failed to create Anomaly Detection Agent")?;
+
+            let check_type: DiagnoseCheck = check.parse()
+                .map_err(|e: String| anyhow::anyhow!(e))?;
+
+            let result = agent.diagnose(check_type).await;
+
+            if json_output {
+                println!("{}", serde_json::to_string_pretty(&result)?);
+            } else {
+                println!("\n{}", "=".repeat(70));
+                println!("ANOMALY DETECTION AGENT DIAGNOSTICS");
+                println!("{}", "=".repeat(70));
+                println!("Agent ID:       {}", result.agent_id);
+                println!("Timestamp:      {}", result.timestamp);
+                println!("Overall Status: {:?}", result.overall_status);
+                println!();
+                println!("HEALTH CHECKS:");
+                for check in &result.checks {
+                    let status_icon = match check.status {
+                        llm_sentinel_detection::agents::anomaly_detection::CheckStatus::Healthy => "[OK]",
+                        llm_sentinel_detection::agents::anomaly_detection::CheckStatus::Warning => "[!!]",
+                        llm_sentinel_detection::agents::anomaly_detection::CheckStatus::Unhealthy => "[XX]",
+                    };
+                    println!("  {} {}: {}", status_icon, check.name, check.message);
+                }
+                println!("{}", "=".repeat(70));
+            }
+        }
+        other => {
+            return Err(anyhow::anyhow!("Unknown agent: {}. Available: anomaly-detection", other));
+        }
+    }
+
+    Ok(())
+}
+
 /// Run the serve subcommand (default behavior)
 async fn run_serve_command(cli: &Cli) -> Result<()> {
     info!("Loading configuration from: {:?}", cli.config);
@@ -203,13 +502,104 @@ async fn run_serve_command(cli: &Cli) -> Result<()> {
         return Ok(());
     }
 
-    // Initialize components
+    // Check for API-only mode (for Cloud Run deployments without full infrastructure)
+    if cli.api_only {
+        info!("API-only mode enabled - starting minimal API server without storage/alerting");
+        return run_api_only_server(&config).await;
+    }
+
+    // Initialize full sentinel with all components
     let sentinel = Sentinel::new(config).await?;
 
     // Run the sentinel
     sentinel.run().await?;
 
     Ok(())
+}
+
+/// Run API-only server without storage or alerting infrastructure
+async fn run_api_only_server(config: &Config) -> Result<()> {
+    use std::net::SocketAddr;
+    use llm_sentinel_storage::NoopStorage;
+
+    let addr: SocketAddr = format!("{}:{}", config.server.host, config.server.port)
+        .parse()
+        .context("Invalid server address")?;
+
+    info!("Starting API-only server on {}", addr);
+
+    // Build a minimal router with health endpoints and agent endpoints
+    let api_config = llm_sentinel_api::ApiConfig {
+        bind_addr: addr,
+        enable_cors: true,
+        cors_origins: vec!["*".to_string()],
+        timeout_secs: config.server.request_timeout_secs,
+        max_body_size: 10 * 1024 * 1024, // 10MB
+        enable_logging: true,
+        metrics_path: "/metrics".to_string(),
+    };
+
+    // Create states for health, metrics, and query endpoints
+    let noop_storage: Arc<dyn llm_sentinel_storage::Storage> = Arc::new(NoopStorage::new());
+
+    let health_state = Arc::new(llm_sentinel_api::handlers::health::HealthState::new(
+        env!("CARGO_PKG_VERSION").to_string(),
+        Arc::new(|| Ok(())), // Always healthy in API-only mode
+    ));
+    let metrics_state = Arc::new(llm_sentinel_api::handlers::metrics::MetricsState::new());
+    let query_state = Arc::new(llm_sentinel_api::handlers::query::QueryState::new(noop_storage));
+
+    let app = llm_sentinel_api::routes::create_router(
+        api_config,
+        health_state,
+        metrics_state,
+        query_state,
+    );
+
+    info!("API server listening on {}", addr);
+
+    // Start server with graceful shutdown
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+
+    let server = axum::serve(listener, app);
+
+    // Use tokio select for graceful shutdown
+    tokio::select! {
+        result = server => {
+            result.context("API server failed")?;
+        }
+        _ = shutdown_signal() => {
+            info!("Shutdown signal received");
+        }
+    }
+
+    info!("API server shut down gracefully");
+    Ok(())
+}
+
+/// Wait for shutdown signal
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("Failed to install SIGTERM handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => { info!("Received Ctrl+C, shutting down..."); },
+        _ = terminate => { info!("Received SIGTERM, shutting down..."); },
+    }
 }
 
 /// Initialize logging based on CLI arguments

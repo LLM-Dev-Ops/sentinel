@@ -6,6 +6,7 @@ use crate::{
     baseline::BaselineManager,
     detectors::{
         cusum::{CusumConfig, CusumDetector},
+        drift::{DriftConfig, DriftDetector},
         iqr::{IqrConfig, IqrDetector},
         mad::{MadConfig, MadDetector},
         zscore::{ZScoreConfig, ZScoreDetector},
@@ -43,6 +44,11 @@ pub struct EngineConfig {
     /// CUSUM configuration
     pub cusum_config: CusumConfig,
 
+    /// Enable Drift detector
+    pub enable_drift: bool,
+    /// Drift configuration
+    pub drift_config: DriftConfig,
+
     /// Baseline window size
     pub baseline_window_size: usize,
 
@@ -61,6 +67,8 @@ impl Default for EngineConfig {
             mad_config: MadConfig::default(),
             enable_cusum: true,
             cusum_config: CusumConfig::default(),
+            enable_drift: true, // Drift detection enabled by default
+            drift_config: DriftConfig::default(),
             baseline_window_size: 1000,
             continuous_learning: true,
         }
@@ -150,6 +158,15 @@ impl DetectionEngine {
             info!("Enabling CUSUM detector");
             let detector = CusumDetector::new(
                 config.cusum_config.clone(),
+                Arc::clone(&baseline_manager),
+            );
+            detectors.push(Box::new(detector));
+        }
+
+        if config.enable_drift {
+            info!("Enabling Drift detector");
+            let detector = DriftDetector::new(
+                config.drift_config.clone(),
                 Arc::clone(&baseline_manager),
             );
             detectors.push(Box::new(detector));

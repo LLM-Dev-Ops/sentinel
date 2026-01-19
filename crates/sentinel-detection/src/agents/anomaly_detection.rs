@@ -38,7 +38,7 @@ use crate::{
     stats, Detector, DetectorStats, DetectorType,
 };
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use llm_sentinel_core::{
     events::{AnomalyContext, AnomalyDetails, AnomalyEvent, TelemetryEvent},
     types::{AnomalyType, DetectionMethod, ModelId, ServiceId, Severity},
@@ -134,7 +134,7 @@ pub struct AgentInvocationResult {
 }
 
 /// Agent statistics
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct AgentStats {
     /// Total invocations
     pub invocations: u64,

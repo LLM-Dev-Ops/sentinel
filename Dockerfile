@@ -2,7 +2,18 @@
 # Optimized for production deployment with minimal image size
 
 # Stage 1: Build dependencies (cached layer)
-FROM rust:1.75-slim-bookworm AS chef
+FROM rust:1.85-slim-bookworm AS chef
+
+# Install build dependencies needed for cargo-chef cook and rdkafka
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    ca-certificates \
+    cmake \
+    build-essential \
+    libsasl2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN cargo install cargo-chef
 WORKDIR /app
 
@@ -17,13 +28,16 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Stage 4: Build application
-FROM rust:1.75-slim-bookworm AS builder
+FROM rust:1.85-slim-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
     ca-certificates \
+    cmake \
+    build-essential \
+    libsasl2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -47,6 +61,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -72,11 +87,12 @@ EXPOSE 8080 9090
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD ["/usr/local/bin/sentinel", "--help"] || exit 1
+    CMD curl -f http://localhost:8080/health/live || exit 1
 
 # Set environment variables
 ENV RUST_LOG=info
 ENV SENTINEL_CONFIG=/etc/sentinel/sentinel.yaml
+ENV SENTINEL_API_ONLY=true
 
 # Run the application
 ENTRYPOINT ["/usr/local/bin/sentinel"]

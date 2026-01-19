@@ -120,7 +120,7 @@ pub struct ResponseMetadata {
 /// Re-export commonly used types
 pub mod prelude {
     pub use crate::handlers::*;
-    pub use crate::routes::create_router;
+    pub use crate::routes::{create_router, create_router_with_alerting};
     pub use crate::server::ApiServer;
     pub use crate::{ApiConfig, ErrorResponse, SuccessResponse};
 }

@@ -194,7 +194,7 @@ impl DriftCliHandler {
     ) -> Result<String> {
         // Load events from file
         let content =
-            std::fs::read_to_string(&events_file).map_err(|e| llm_sentinel_core::Error::io(e))?;
+            std::fs::read_to_string(&events_file).map_err(|e| llm_sentinel_core::Error::Io(e))?;
 
         let events: Vec<TelemetryEvent> = serde_json::from_str(&content)
             .map_err(|e| llm_sentinel_core::Error::validation(format!("Invalid JSON: {}", e)))?;
@@ -251,7 +251,7 @@ impl DriftCliHandler {
         // Write to file if specified
         if let Some(path) = output_file {
             let json = serde_json::to_string_pretty(&result).unwrap_or_default();
-            std::fs::write(&path, &json).map_err(|e| llm_sentinel_core::Error::io(e))?;
+            std::fs::write(&path, &json).map_err(|e| llm_sentinel_core::Error::Io(e))?;
         }
 
         if json_output {
