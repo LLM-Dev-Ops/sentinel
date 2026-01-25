@@ -48,6 +48,6 @@
     "access": "public"
   },
   "dependencies": {
-    "claude-flow": "^2.7.40"
+    "claude-flow": "^3.0.0-alpha.179"
   }
 }
