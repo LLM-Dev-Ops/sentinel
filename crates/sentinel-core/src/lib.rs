@@ -9,6 +9,7 @@
 //! - Alert definitions
 //! - Configuration structures
 //! - Shared utilities
+//! - Phase 2 Operational Intelligence infrastructure
 
 #![warn(
     missing_docs,
@@ -22,6 +23,7 @@ pub mod config;
 pub mod error;
 pub mod events;
 pub mod metrics;
+pub mod phase2;
 pub mod types;
 
 pub use error::{Error, Result};
@@ -31,5 +33,12 @@ pub mod prelude {
     pub use crate::config::Config;
     pub use crate::error::{Error, Result};
     pub use crate::events::{AnomalyEvent, TelemetryEvent};
+    pub use crate::phase2::{
+        Phase2Config, Phase2Startup, StartupError,
+        RuvectorClient, RuvectorError,
+        Signal, SignalType, SignalEmitter,
+        PerformanceBudget, BudgetViolation,
+        LineageCache, CacheConfig,
+    };
     pub use crate::types::{AnomalyType, Severity};
 }

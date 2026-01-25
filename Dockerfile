@@ -20,11 +20,16 @@ WORKDIR /app
 # Stage 2: Prepare recipe
 FROM chef AS planner
 COPY . .
+# Pin time crate to version compatible with Rust 1.85
+RUN cargo update -p time --precise 0.3.36 || true
+RUN cargo update -p time-core --precise 0.1.2 || true
+RUN cargo update -p time-macros --precise 0.2.18 || true
 RUN cargo chef prepare --recipe-path recipe.json
 
 # Stage 3: Build dependencies (cached)
 FROM chef AS builder-deps
 COPY --from=planner /app/recipe.json recipe.json
+COPY --from=planner /app/Cargo.lock Cargo.lock
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Stage 4: Build application
@@ -46,8 +51,9 @@ WORKDIR /app
 COPY --from=builder-deps /app/target target
 COPY --from=builder-deps /usr/local/cargo /usr/local/cargo
 
-# Copy source code
-COPY Cargo.toml Cargo.lock ./
+# Copy source code and lockfile from planner (with pinned deps)
+COPY Cargo.toml ./
+COPY --from=planner /app/Cargo.lock ./
 COPY crates ./crates
 COPY sentinel ./sentinel
 

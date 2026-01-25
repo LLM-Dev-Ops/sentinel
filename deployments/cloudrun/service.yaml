@@ -55,6 +55,31 @@ spec:
               value: "info"
             - name: SENTINEL_CONFIG
               value: "/etc/sentinel/sentinel.yaml"
+            # Phase 2 Layer 1 - Required Agent Configuration
+            - name: AGENT_NAME
+              value: "llm-sentinel"
+            - name: AGENT_DOMAIN
+              value: "detection"
+            - name: AGENT_PHASE
+              value: "phase2"
+            - name: AGENT_LAYER
+              value: "layer1"
+            # Phase 2 Performance Budgets
+            - name: MAX_TOKENS
+              value: "1000"
+            - name: MAX_LATENCY_MS
+              value: "2000"
+            - name: MAX_CALLS_PER_RUN
+              value: "3"
+            # Phase 2 Cache Configuration (TTL 60-120s)
+            - name: CACHE_TTL_MIN_SECS
+              value: "60"
+            - name: CACHE_TTL_MAX_SECS
+              value: "120"
+            - name: CACHE_CAPACITY
+              value: "1000"
+            - name: CACHE_ENABLED
+              value: "true"
             # ruvector-service configuration (from Secret Manager)
             - name: RUVECTOR_SERVICE_URL
               valueFrom:

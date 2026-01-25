@@ -84,6 +84,7 @@ anyhow = "1.0"
 # Time & UUID
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.11", features = ["v4", "serde"] }
+time = "=0.3.36"  # Pinned for Rust 1.85 compatibility
 
 # Security & Validation
 validator = { version = "0.18", features = ["derive"] }

@@ -43,6 +43,9 @@ metrics = { workspace = true }
 once_cell = { workspace = true }
 bytes = { workspace = true }
 
+# HTTP Client (Phase 2 Ruvector integration)
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+
 # LLM DevOps Infrastructure (Phase 2B)
 # Foundation layer - unified error handling
 infra-errors = { workspace = true }
