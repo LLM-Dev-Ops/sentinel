@@ -2,7 +2,7 @@
 # Optimized for production deployment with minimal image size
 
 # Stage 1: Build dependencies (cached layer)
-FROM rust:1.85-slim-bookworm AS chef
+FROM rust:1.93-slim-bookworm AS chef
 
 # Install build dependencies needed for cargo-chef cook and rdkafka
 RUN apt-get update && apt-get install -y \
@@ -33,7 +33,7 @@ COPY --from=planner /app/Cargo.lock Cargo.lock
 RUN cargo chef cook --release --recipe-path recipe.json
 
 # Stage 4: Build application
-FROM rust:1.85-slim-bookworm AS builder
+FROM rust:1.93-slim-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
