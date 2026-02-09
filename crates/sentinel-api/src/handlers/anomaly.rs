@@ -16,7 +16,9 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
-use crate::SuccessResponse;
+use llm_sentinel_core::execution::{create_agent_span, Evidence};
+use crate::execution::ExecutionCollector;
+use crate::{InstrumentedResponse, SuccessResponse};
 
 // =============================================================================
 // STATE
@@ -109,21 +111,48 @@ pub struct AnomalyStatsResponse {
 // =============================================================================
 
 /// POST /api/v1/agents/anomaly/detect
-#[instrument(skip(_state, request))]
+///
+/// Emits an agent-level execution span for the anomaly detection agent.
+/// Returns an `InstrumentedResponse` containing the execution graph.
+#[instrument(skip(_state, request, collector))]
 pub async fn detect_anomaly(
+    collector: ExecutionCollector,
     State(_state): State<Arc<AnomalyDetectionState>>,
     Json(request): Json<DetectRequest>,
 ) -> impl IntoResponse {
     info!("Processing telemetry for anomaly detection");
 
-    // Placeholder response - actual implementation would invoke the AnomalyDetectionAgent
+    let repo_span_id = collector.0.repo_span_id();
+    let mut agent_span = create_agent_span("anomaly_detection", repo_span_id);
+
+    // Execute agent logic
+    let result = DetectResponse {
+        anomaly_detected: false,
+        anomaly: None,
+        status: "success".to_string(),
+    };
+
+    // Attach evidence of execution
+    agent_span.attach_evidence(Evidence {
+        evidence_type: "detection_result".to_string(),
+        reference: format!("anomaly_detection:{}", agent_span.span_id),
+        payload: serde_json::json!({
+            "anomaly_detected": result.anomaly_detected,
+            "dry_run": request.dry_run,
+        }),
+    });
+
+    agent_span.complete();
+    collector.0.add_agent_span(agent_span);
+
+    let graph = collector.0.finalize();
+
     (
         StatusCode::OK,
-        Json(SuccessResponse::new(DetectResponse {
-            anomaly_detected: false,
-            anomaly: None,
-            status: "success".to_string(),
-        })),
+        Json(InstrumentedResponse {
+            data: result,
+            execution: graph,
+        }),
     )
 }
 

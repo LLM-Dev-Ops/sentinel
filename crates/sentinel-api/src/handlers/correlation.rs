@@ -16,7 +16,9 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
-use crate::SuccessResponse;
+use llm_sentinel_core::execution::{create_agent_span, Evidence};
+use crate::execution::ExecutionCollector;
+use crate::{InstrumentedResponse, SuccessResponse};
 
 // =============================================================================
 // STATE
@@ -111,8 +113,11 @@ pub struct CorrelationStatsResponse {
 // =============================================================================
 
 /// POST /api/v1/agents/correlation/correlate
-#[instrument(skip(_state, request), fields(signal_count = request.signals.len()))]
+///
+/// Emits an agent-level execution span for the incident correlation agent.
+#[instrument(skip(_state, request, collector), fields(signal_count = request.signals.len()))]
 pub async fn correlate_signals(
+    collector: ExecutionCollector,
     State(_state): State<Arc<IncidentCorrelationState>>,
     Json(request): Json<CorrelateRequest>,
 ) -> impl IntoResponse {
@@ -121,28 +126,60 @@ pub async fn correlate_signals(
         "Processing correlation request"
     );
 
+    let repo_span_id = collector.0.repo_span_id();
+    let mut agent_span = create_agent_span("incident_correlation", repo_span_id);
+
     // Validate input
     if request.signals.is_empty() {
+        agent_span.fail(vec!["No signals provided".to_string()]);
+        collector.0.add_agent_span(agent_span);
+        let graph = collector.0.finalize_failed(vec![
+            "Correlation validation failed: no signals".to_string(),
+        ]);
+
         return (
             StatusCode::BAD_REQUEST,
-            Json(SuccessResponse::new(CorrelateResponse {
-                incidents_count: 0,
-                signals_processed: 0,
-                noise_reduction: 0.0,
-                status: "No signals provided".to_string(),
-            })),
+            Json(InstrumentedResponse {
+                data: CorrelateResponse {
+                    incidents_count: 0,
+                    signals_processed: 0,
+                    noise_reduction: 0.0,
+                    status: "No signals provided".to_string(),
+                },
+                execution: graph,
+            }),
         );
     }
 
-    // Placeholder response
+    // Execute agent logic
+    let result = CorrelateResponse {
+        incidents_count: 0,
+        signals_processed: request.signals.len(),
+        noise_reduction: 0.0,
+        status: "success".to_string(),
+    };
+
+    agent_span.attach_evidence(Evidence {
+        evidence_type: "correlation_result".to_string(),
+        reference: format!("incident_correlation:{}", agent_span.span_id),
+        payload: serde_json::json!({
+            "incidents_count": result.incidents_count,
+            "signals_processed": result.signals_processed,
+            "noise_reduction": result.noise_reduction,
+        }),
+    });
+
+    agent_span.complete();
+    collector.0.add_agent_span(agent_span);
+
+    let graph = collector.0.finalize();
+
     (
         StatusCode::OK,
-        Json(SuccessResponse::new(CorrelateResponse {
-            incidents_count: 0,
-            signals_processed: request.signals.len(),
-            noise_reduction: 0.0,
-            status: "success".to_string(),
-        })),
+        Json(InstrumentedResponse {
+            data: result,
+            execution: graph,
+        }),
     )
 }
 

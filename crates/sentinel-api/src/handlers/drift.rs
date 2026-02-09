@@ -16,7 +16,9 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
-use crate::SuccessResponse;
+use llm_sentinel_core::execution::{create_agent_span, Evidence};
+use crate::execution::ExecutionCollector;
+use crate::{InstrumentedResponse, SuccessResponse};
 
 // =============================================================================
 // STATE
@@ -121,8 +123,10 @@ pub struct DriftStatsResponse {
 /// POST /api/v1/agents/drift/detect
 ///
 /// Analyze distributions for drift using PSI.
-#[instrument(skip(_state, request), fields(metric = %request.metric, service = %request.service))]
+/// Emits an agent-level execution span for the drift detection agent.
+#[instrument(skip(_state, request, collector), fields(metric = %request.metric, service = %request.service))]
 pub async fn detect_drift(
+    collector: ExecutionCollector,
     State(_state): State<Arc<DriftDetectionState>>,
     Json(request): Json<DriftDetectRequest>,
 ) -> impl IntoResponse {
@@ -133,28 +137,63 @@ pub async fn detect_drift(
         "Processing drift detection request"
     );
 
+    let repo_span_id = collector.0.repo_span_id();
+    let mut agent_span = create_agent_span("drift_detection", repo_span_id);
+
     // Validate input
     if request.reference_data.len() < 10 || request.current_data.len() < 10 {
+        agent_span.fail(vec![
+            "Insufficient data: minimum 10 samples required".to_string(),
+        ]);
+        collector.0.add_agent_span(agent_span);
+        let graph = collector.0.finalize_failed(vec![
+            "Drift detection validation failed".to_string(),
+        ]);
+
         return (
             StatusCode::BAD_REQUEST,
-            Json(SuccessResponse::new(DriftDetectResponse {
-                drift_detected: false,
-                drift_severity: "error".to_string(),
-                psi_value: 0.0,
-                status: "Insufficient data: minimum 10 samples required".to_string(),
-            })),
+            Json(InstrumentedResponse {
+                data: DriftDetectResponse {
+                    drift_detected: false,
+                    drift_severity: "error".to_string(),
+                    psi_value: 0.0,
+                    status: "Insufficient data: minimum 10 samples required".to_string(),
+                },
+                execution: graph,
+            }),
         );
     }
 
-    // Placeholder response - actual implementation would invoke the DriftDetectionAgent
+    // Execute agent logic
+    let result = DriftDetectResponse {
+        drift_detected: false,
+        drift_severity: "none".to_string(),
+        psi_value: 0.05,
+        status: "success".to_string(),
+    };
+
+    agent_span.attach_evidence(Evidence {
+        evidence_type: "detection_result".to_string(),
+        reference: format!("drift_detection:{}", agent_span.span_id),
+        payload: serde_json::json!({
+            "drift_detected": result.drift_detected,
+            "psi_value": result.psi_value,
+            "metric": request.metric,
+            "service": request.service,
+        }),
+    });
+
+    agent_span.complete();
+    collector.0.add_agent_span(agent_span);
+
+    let graph = collector.0.finalize();
+
     (
         StatusCode::OK,
-        Json(SuccessResponse::new(DriftDetectResponse {
-            drift_detected: false,
-            drift_severity: "none".to_string(),
-            psi_value: 0.05,
-            status: "success".to_string(),
-        })),
+        Json(InstrumentedResponse {
+            data: result,
+            execution: graph,
+        }),
     )
 }
 

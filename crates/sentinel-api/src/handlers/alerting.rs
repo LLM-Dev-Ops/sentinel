@@ -22,7 +22,9 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tracing::{error, info, instrument};
 
-use crate::{ErrorResponse, SuccessResponse};
+use llm_sentinel_core::execution::{create_agent_span, Artifact, Evidence};
+use crate::execution::ExecutionCollector;
+use crate::{InstrumentedResponse, SuccessResponse};
 use llm_sentinel_detection::agents::{
     AlertingAgent, AlertingAgentInput, AlertingRule, DecisionEvent,
 };
@@ -156,17 +158,22 @@ pub struct ConfigSummary {
 ///
 /// Evaluate an anomaly event against alerting rules.
 /// Returns a DecisionEvent indicating whether an alert should be raised.
+/// Emits an agent-level execution span for the alerting agent.
 ///
 /// ## Constitution Compliance
 /// - This endpoint does NOT send notifications
 /// - It only evaluates and returns a decision
 /// - LLM-Incident-Manager consumes these decisions
-#[instrument(skip(state, request), fields(source = %request.source))]
+#[instrument(skip(state, request, collector), fields(source = %request.source))]
 pub async fn evaluate_alert(
+    collector: ExecutionCollector,
     State(state): State<Arc<AlertingState>>,
     Json(request): Json<EvaluateRequest>,
 ) -> impl IntoResponse {
     info!("Evaluating anomaly for alerting");
+
+    let repo_span_id = collector.0.repo_span_id();
+    let mut agent_span = create_agent_span("alerting", repo_span_id);
 
     // Build input
     let mut input = AlertingAgentInput::from_anomaly(request.anomaly, &request.source);
@@ -195,23 +202,67 @@ pub async fn evaluate_alert(
                 "Alert evaluation complete"
             );
 
+            // Attach decision event as artifact
+            agent_span.attach_artifact(Artifact {
+                reference: format!("decision:{}", decision.decision_id),
+                kind: "decision_event".to_string(),
+                content: Some(serde_json::json!({
+                    "decision_id": decision.decision_id.to_string(),
+                    "alert_raised": alert_raised,
+                })),
+            });
+
+            agent_span.attach_evidence(Evidence {
+                evidence_type: "decision_event".to_string(),
+                reference: format!("alerting:{}", decision.decision_id),
+                payload: serde_json::json!({
+                    "decision_id": decision.decision_id.to_string(),
+                    "alert_raised": alert_raised,
+                    "confidence": decision.confidence,
+                }),
+            });
+
+            agent_span.complete();
+            collector.0.add_agent_span(agent_span);
+
             let response = EvaluateResponse {
                 decision,
                 alert_raised,
                 status: status.to_string(),
             };
 
-            (StatusCode::OK, Json(SuccessResponse::new(response)))
+            let graph = collector.0.finalize();
+
+            (
+                StatusCode::OK,
+                Json(InstrumentedResponse {
+                    data: response,
+                    execution: graph,
+                }),
+            )
         }
         Err(e) => {
             error!(error = %e, "Alert evaluation failed");
+
+            agent_span.fail(vec![format!("Alert evaluation failed: {}", e)]);
+            collector.0.add_agent_span(agent_span);
+
+            let response = EvaluateResponse {
+                decision: create_error_decision(&e.to_string()),
+                alert_raised: false,
+                status: "error".to_string(),
+            };
+
+            let graph = collector.0.finalize_failed(vec![
+                format!("Alerting agent failed: {}", e),
+            ]);
+
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(SuccessResponse::new(EvaluateResponse {
-                    decision: create_error_decision(&e.to_string()),
-                    alert_raised: false,
-                    status: "error".to_string(),
-                })),
+                Json(InstrumentedResponse {
+                    data: response,
+                    execution: graph,
+                }),
             )
         }
     }

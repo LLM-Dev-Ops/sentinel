@@ -10,6 +10,7 @@
 //! - Configuration structures
 //! - Shared utilities
 //! - Phase 2 Operational Intelligence infrastructure
+//! - Execution span infrastructure for Agentics integration
 
 #![warn(
     missing_docs,
@@ -22,6 +23,7 @@
 pub mod config;
 pub mod error;
 pub mod events;
+pub mod execution;
 pub mod metrics;
 pub mod phase2;
 pub mod types;
@@ -41,4 +43,9 @@ pub mod prelude {
         LineageCache, CacheConfig,
     };
     pub use crate::types::{AnomalyType, Severity};
+    pub use crate::execution::{
+        ExecutionContext, ExecutionGraph, ExecutionGraphCollector,
+        ExecutionSpan, SpanType, SpanStatus, Artifact, Evidence,
+        create_repo_span, create_agent_span,
+    };
 }

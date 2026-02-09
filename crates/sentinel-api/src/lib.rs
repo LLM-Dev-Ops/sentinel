@@ -8,9 +8,11 @@
 //! - Telemetry query API
 //! - Anomaly query API
 //! - Real-time anomaly stream (WebSocket)
+//! - Execution span infrastructure for Agentics integration
 
 #![warn(missing_debug_implementations, rust_2018_idioms, unreachable_pub)]
 
+pub mod execution;
 pub mod handlers;
 pub mod middleware;
 pub mod routes;
@@ -117,10 +119,24 @@ pub struct ResponseMetadata {
     pub page_size: Option<usize>,
 }
 
+/// Response wrapper that includes the execution graph.
+///
+/// All agent-invoking endpoints MUST return this type to satisfy the
+/// Agentics output contract. The execution graph contains the repo-level
+/// span and all nested agent-level spans.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InstrumentedResponse<T> {
+    /// Response data from the handler
+    pub data: T,
+    /// The execution graph with repo and agent spans
+    pub execution: llm_sentinel_core::execution::ExecutionGraph,
+}
+
 /// Re-export commonly used types
 pub mod prelude {
+    pub use crate::execution::{ExecutionCollector, execution_context_middleware};
     pub use crate::handlers::*;
     pub use crate::routes::{create_router, create_router_with_alerting};
     pub use crate::server::ApiServer;
-    pub use crate::{ApiConfig, ErrorResponse, SuccessResponse};
+    pub use crate::{ApiConfig, ErrorResponse, InstrumentedResponse, SuccessResponse};
 }

@@ -28,6 +28,7 @@ use tower_http::timeout::TimeoutLayer;
 use std::time::Duration;
 
 use crate::{
+    execution::execution_context_middleware,
     handlers::{
         alerting::*, anomaly::*, correlation::*, drift::*, health::*, metrics::*, query::*, rca::*,
     },
@@ -74,6 +75,16 @@ pub fn create_router_with_alerting(
 ///
 /// This is the primary router for production deployment.
 /// All agents are exposed through a single service.
+///
+/// ## Execution Context Enforcement
+///
+/// All agent POST endpoints (execution endpoints) are wrapped with
+/// `execution_context_middleware` which:
+/// - Requires `X-Parent-Span-Id` header (rejects 400 if missing)
+/// - Creates a repo-level execution span
+/// - Injects `ExecutionGraphCollector` into request extensions
+///
+/// GET endpoints (config/stats/rules) do NOT require execution context.
 pub fn create_unified_router(
     config: ApiConfig,
     health_state: Arc<HealthState>,
@@ -88,56 +99,77 @@ pub fn create_unified_router(
         .with_state(query_state);
 
     // Anomaly Detection Agent routes
+    // POST routes get execution context middleware; GET routes do not.
     let anomaly_routes = if let Some(state) = agent_states.anomaly {
-        Router::new()
+        let exec_routes = Router::new()
             .route("/agents/anomaly/detect", post(detect_anomaly))
+            .layer(middleware::from_fn(execution_context_middleware))
+            .with_state(state.clone());
+        let info_routes = Router::new()
             .route("/agents/anomaly/config", get(anomaly_config))
             .route("/agents/anomaly/stats", get(anomaly_stats))
-            .with_state(state)
+            .with_state(state);
+        exec_routes.merge(info_routes)
     } else {
         Router::new()
     };
 
     // Drift Detection Agent routes
     let drift_routes = if let Some(state) = agent_states.drift {
-        Router::new()
+        let exec_routes = Router::new()
             .route("/agents/drift/detect", post(detect_drift))
+            .layer(middleware::from_fn(execution_context_middleware))
+            .with_state(state.clone());
+        let info_routes = Router::new()
             .route("/agents/drift/config", get(drift_config))
             .route("/agents/drift/stats", get(drift_stats))
-            .with_state(state)
+            .with_state(state);
+        exec_routes.merge(info_routes)
     } else {
         Router::new()
     };
 
     // Alerting Agent routes
     let alerting_routes = if let Some(state) = agent_states.alerting {
-        Router::new()
+        let exec_routes = Router::new()
             .route("/agents/alerting/evaluate", post(evaluate_alert))
+            .layer(middleware::from_fn(execution_context_middleware))
+            .with_state(state.clone());
+        let info_routes = Router::new()
             .route("/agents/alerting/rules", get(list_rules))
             .route("/agents/alerting/stats", get(alerting_stats))
-            .with_state(state)
+            .with_state(state);
+        exec_routes.merge(info_routes)
     } else {
         Router::new()
     };
 
     // Incident Correlation Agent routes
     let correlation_routes = if let Some(state) = agent_states.correlation {
-        Router::new()
+        let exec_routes = Router::new()
             .route("/agents/correlation/correlate", post(correlate_signals))
+            .layer(middleware::from_fn(execution_context_middleware))
+            .with_state(state.clone());
+        let info_routes = Router::new()
             .route("/agents/correlation/config", get(correlation_config))
             .route("/agents/correlation/stats", get(correlation_stats))
-            .with_state(state)
+            .with_state(state);
+        exec_routes.merge(info_routes)
     } else {
         Router::new()
     };
 
     // Root Cause Analysis Agent routes
     let rca_routes = if let Some(state) = agent_states.rca {
-        Router::new()
+        let exec_routes = Router::new()
             .route("/agents/rca/analyze", post(analyze_root_cause))
+            .layer(middleware::from_fn(execution_context_middleware))
+            .with_state(state.clone());
+        let info_routes = Router::new()
             .route("/agents/rca/config", get(rca_config))
             .route("/agents/rca/stats", get(rca_stats))
-            .with_state(state)
+            .with_state(state);
+        exec_routes.merge(info_routes)
     } else {
         Router::new()
     };

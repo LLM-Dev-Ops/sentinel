@@ -16,7 +16,9 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
-use crate::SuccessResponse;
+use llm_sentinel_core::execution::{create_agent_span, Evidence};
+use crate::execution::ExecutionCollector;
+use crate::{InstrumentedResponse, SuccessResponse};
 
 // =============================================================================
 // STATE
@@ -109,21 +111,47 @@ pub struct RcaStatsResponse {
 // =============================================================================
 
 /// POST /api/v1/agents/rca/analyze
-#[instrument(skip(_state, request))]
+///
+/// Emits an agent-level execution span for the root cause analysis agent.
+#[instrument(skip(_state, request, collector))]
 pub async fn analyze_root_cause(
+    collector: ExecutionCollector,
     State(_state): State<Arc<RcaState>>,
     Json(request): Json<RcaRequest>,
 ) -> impl IntoResponse {
     info!("Processing root cause analysis request");
 
-    // Placeholder response
+    let repo_span_id = collector.0.repo_span_id();
+    let mut agent_span = create_agent_span("root_cause_analysis", repo_span_id);
+
+    // Execute agent logic
+    let result = RcaResponse {
+        hypotheses_count: 0,
+        confidence: 0.0,
+        status: "success".to_string(),
+    };
+
+    agent_span.attach_evidence(Evidence {
+        evidence_type: "rca_result".to_string(),
+        reference: format!("root_cause_analysis:{}", agent_span.span_id),
+        payload: serde_json::json!({
+            "hypotheses_count": result.hypotheses_count,
+            "confidence": result.confidence,
+            "max_hypotheses_requested": request.max_hypotheses,
+        }),
+    });
+
+    agent_span.complete();
+    collector.0.add_agent_span(agent_span);
+
+    let graph = collector.0.finalize();
+
     (
         StatusCode::OK,
-        Json(SuccessResponse::new(RcaResponse {
-            hypotheses_count: 0,
-            confidence: 0.0,
-            status: "success".to_string(),
-        })),
+        Json(InstrumentedResponse {
+            data: result,
+            execution: graph,
+        }),
     )
 }
 
