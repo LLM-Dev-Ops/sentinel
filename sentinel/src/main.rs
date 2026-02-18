@@ -522,7 +522,13 @@ async fn run_api_only_server(config: &Config) -> Result<()> {
     use std::net::SocketAddr;
     use llm_sentinel_storage::NoopStorage;
 
-    let addr: SocketAddr = format!("{}:{}", config.server.host, config.server.port)
+    // Cloud Run injects PORT env var — always prefer it over config file
+    let port = std::env::var("PORT")
+        .ok()
+        .and_then(|p| p.parse::<u16>().ok())
+        .unwrap_or(config.server.port);
+
+    let addr: SocketAddr = format!("{}:{}", config.server.host, port)
         .parse()
         .context("Invalid server address")?;
 
