@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     build-essential \
     libsasl2-dev \
+    libcurl4-openssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cargo install cargo-chef
@@ -43,6 +44,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     build-essential \
     libsasl2-dev \
+    libcurl4-openssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

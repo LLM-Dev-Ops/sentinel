@@ -30,7 +30,7 @@ use std::time::Duration;
 use crate::{
     execution::execution_context_middleware,
     handlers::{
-        alerting::*, anomaly::*, correlation::*, drift::*, health::*, metrics::*, query::*, rca::*,
+        alerting::*, anomaly::*, correlation::*, drift::*, events::*, health::*, metrics::*, query::*, rca::*,
     },
     middleware::{cors_middleware, logging_middleware},
     ApiConfig,
@@ -97,6 +97,10 @@ pub fn create_unified_router(
         .route("/telemetry", get(query_telemetry))
         .route("/anomalies", get(query_anomalies))
         .with_state(query_state);
+
+    // Event ingestion route (stateless, no auth — internal use by intelligence-core)
+    let events_route = Router::new()
+        .route("/events", post(ingest_event));
 
     // Anomaly Detection Agent routes
     // POST routes get execution context middleware; GET routes do not.
@@ -174,13 +178,14 @@ pub fn create_unified_router(
         Router::new()
     };
 
-    // Merge all agent routes into API v1
+    // Merge all agent routes and event ingestion into API v1
     let api_v1 = api_v1
         .merge(anomaly_routes)
         .merge(drift_routes)
         .merge(alerting_routes)
         .merge(correlation_routes)
-        .merge(rca_routes);
+        .merge(rca_routes)
+        .merge(events_route);
 
     // Health routes
     let health_routes = Router::new()
