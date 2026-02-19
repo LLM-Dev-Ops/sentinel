@@ -65,10 +65,13 @@ RUN cargo build --release --bin sentinel
 # Stage 5: Runtime image
 FROM debian:bookworm-slim
 
-# Install runtime dependencies
+# Install runtime dependencies (must match libraries linked during build)
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    libsasl2-2 \
+    libcurl4 \
+    libzstd1 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
