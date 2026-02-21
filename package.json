@@ -32,9 +32,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "postinstall": "node ./lib/install.js",
-    "test": "node ./lib/test.js",
-    "prepare": "node ./lib/prepare.js",
     "gcp-build": "tsc"
   },
   "engines": {
