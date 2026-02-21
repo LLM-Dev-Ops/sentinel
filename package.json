@@ -31,12 +31,14 @@
     "LICENSE"
   ],
   "scripts": {
+    "build": "tsc",
     "postinstall": "node ./lib/install.js",
     "test": "node ./lib/test.js",
-    "prepare": "node ./lib/prepare.js"
+    "prepare": "node ./lib/prepare.js",
+    "gcp-build": "tsc"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "optionalDependencies": {
     "@llm-dev-ops/sentinel-cli-darwin-arm64": "0.1.3",
@@ -48,6 +50,16 @@
     "access": "public"
   },
   "dependencies": {
-    "claude-flow": "^3.0.0-alpha.179"
+    "@google-cloud/functions-framework": "^3.4.0",
+    "claude-flow": "^3.0.0-alpha.179",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.5.0"
   }
 }
