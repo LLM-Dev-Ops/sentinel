@@ -33,7 +33,7 @@ ractor = "0.12"
 # HTTP & gRPC
 axum = { version = "0.7", features = ["macros", "ws"] }
 tonic = { version = "0.12", features = ["gzip", "tls"] }
-prost = "0.13"
+prost = "0.14"
 tower = { version = "0.5", features = ["full"] }
 tower-http = { version = "0.6", features = ["full"] }
 hyper = { version = "1.5", features = ["full"] }
