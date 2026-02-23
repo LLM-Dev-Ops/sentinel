@@ -41,7 +41,7 @@ reqwest = { version = "0.12", features = ["json"] }
 
 # Message Queue & Stream Processing
 rdkafka = { version = "0.36", features = ["tokio", "cmake-build"] }
-lapin = "2.5"
+lapin = "3.7"
 datafusion = "44.0"
 arrow = "54.0"
 
