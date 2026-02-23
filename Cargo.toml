@@ -60,7 +60,7 @@ schemars = "0.8"
 # Statistics & ML
 ndarray = { version = "0.16", features = ["blas"] }
 nalgebra = "0.33"
-statrs = "0.17"
+statrs = "0.18"
 smartcore = { version = "0.4", features = ["serde"] }
 augurs-outlier = "0.6"
 
