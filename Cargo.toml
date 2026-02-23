@@ -58,7 +58,7 @@ jsonschema = "0.26"
 schemars = "0.8"
 
 # Statistics & ML
-ndarray = { version = "0.16", features = ["blas"] }
+ndarray = { version = "0.17", features = ["blas"] }
 nalgebra = "0.33"
 statrs = "0.17"
 smartcore = { version = "0.4", features = ["serde"] }
