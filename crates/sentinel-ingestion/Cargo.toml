@@ -59,4 +59,4 @@ tokio = { workspace = true, features = ["test-util", "macros"] }
 mockall = { workspace = true }
 
 [build-dependencies]
-tonic-build = "0.12"
+tonic-build = "0.14"
