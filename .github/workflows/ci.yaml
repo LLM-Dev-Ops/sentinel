@@ -18,6 +18,26 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
+  # Validate the Cloud Function boundary with the pinned Node dependency graph.
+  node:
+    name: Node API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and test
+        run: npm test
+
   # Check code formatting
   fmt:
     name: Format Check
@@ -253,6 +273,7 @@ jobs:
   ci-success:
     name: CI Success
     needs:
+      - node
       - fmt
       - clippy
       - test
