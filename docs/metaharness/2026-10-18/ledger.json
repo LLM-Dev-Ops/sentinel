@@ -1,0 +1,492 @@
+{
+  "date": "2026-10-18",
+  "status": "EXECUTED_COMPONENT_VALIDATED_GLOBAL_MERGE_BLOCKED",
+  "repo": "LLM-Dev-Ops/sentinel",
+  "pr": 22,
+  "prUrl": "https://github.com/LLM-Dev-Ops/sentinel/pull/22",
+  "main": "504b0ea466620ffacfd7ea19993d5a62b71babdd",
+  "baseline": "16249d00b5ebaca889ac6ea372c8acc1b867579f",
+  "firstCandidate": "f89b1e543b3aeea364cdd011947eef82ef4f335e",
+  "correctedImplementation": "40cf495d899bbc2cf25a213c85bcd6a46693ac24",
+  "scope": "One writer, isolated sentinel-cycle-oct18b local worktree; separate baseline and candidate RuOS worktrees; existing PR resumed, leased fast-forward API writes. No merge attempted. Final evidence commit and exact-head validation are reported in PR metadata to avoid a self-referential commit.",
+  "coverage": {
+    "repositories": 58,
+    "repositoryPages": [
+      58,
+      0
+    ],
+    "archived": 0,
+    "openPRs": 118,
+    "openPRPages": [
+      100,
+      18
+    ],
+    "worked": [
+      "sentinel"
+    ],
+    "deferred": [
+      "RuVector",
+      "agentics-cli",
+      "agentics-cli-test",
+      "agentics-contracts",
+      "agentics-deployment-exporters",
+      "agentics-deployment-intent",
+      "agentics-diligence-artifacts",
+      "agentics-dream-machine",
+      "agentics-enforcement",
+      "agentics-evolution",
+      "agentics-execution-engine",
+      "agentics-orchestration-engine",
+      "agentics-org-manifests",
+      "agentics-platform",
+      "agentics-results-index",
+      "agentics-simulation-planner",
+      "agentics-simulation-runner",
+      "agentics-usage-ledger",
+      "analytics-hub",
+      "auto-optimizer",
+      "automation-core",
+      "benchmark-exchange",
+      "config-manager",
+      "connector-hub",
+      "copilot-agent",
+      "cost-ops",
+      "data-core",
+      "data-vault",
+      "ecosystem-core",
+      "edge-agent",
+      "enterprise-roi-engine",
+      "erp-surface",
+      "forge",
+      "governance-core",
+      "governance-dashboard",
+      "incident-manager",
+      "inference-gateway",
+      "infra",
+      "integrations",
+      "intelligence-core",
+      "interface-core",
+      "latency-lens",
+      "marketplace",
+      "memory-graph",
+      "observatory",
+      "orchestrator",
+      "platform-agents",
+      "policy-engine",
+      "registry",
+      "research-core",
+      "research-lab",
+      "ruvector-service",
+      "schema-registry",
+      "security-core",
+      "shield",
+      "simulator",
+      "test-bench"
+    ],
+    "depth": "All 58: main/latest-CI/open-PR metadata and root instruction/manifest inventory. Sentinel only: full relevant instructions/manifests/source/CI/prior evidence. Deferred repositories were not built or deeply reviewed.",
+    "rotation": "Recent memory-graph, auto-optimizer, config-manager, test-bench, forge and inference-gateway work deferred; Sentinel resumed after five days."
+  },
+  "changes": [
+    "CI Success now depends on integration-tests and rejects every result except success",
+    "Replaced invalid standalone Kafka service and unavailable docker-compose v1 with project-scoped Compose v2 fixtures, bounded readiness, diagnostics, and always-run cleanup",
+    "Kafka internal/external listeners and ZooKeeper readiness arguments corrected; explicit CI-only RabbitMQ user authenticated",
+    "47 aggregate regression tests added, all seven prior live HTTP tests retained; no Rust/TS production source or dependency graph changes"
+  ],
+  "criteria": {
+    "contractSha256": "59c26d090c7abec219fa5871bb09a4dee06563d506f8c75cf29df110393ee60d",
+    "fixtureSha256": "c28699d54ae357782f07c804f2142d21e9dc0ab0930950fa44d289b01959c066",
+    "baselineSource": "d3f93cee9abb9f76245fd91feb2be54aedc5c05a50849735c62ab9ea25f23809",
+    "candidateSource": "78e430d3501140b32b7efbb9f9acbee35da43bc1e6372a5065df76e03ddccbcb",
+    "promotions": 1,
+    "fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+    "replay": {
+      "pass": true,
+      "checks": {
+        "receipts": true,
+        "reachesRoot": true,
+        "contiguousParents": true,
+        "allPromoted": true,
+        "gateUnchanged": true,
+        "gateReExecutes": true,
+        "allCommitsReceipts": true,
+        "sealedFieldsAuthentic": true
+      },
+      "failures": [],
+      "chainSummary": "gen1(aggregate) → gen0(root)"
+    },
+    "boundary": "Component aggregate decision boundary only, not real GitHub event scheduling or Docker/Rust integration execution. Expressions are expanded only for the documented fixture result fields, then the actual Bash body executes. Hosted startup, cleanup, full Rust, security and CI gates remain independent. No production rollback executed; inverse parent workflow bytes retained. Cost/latency/energy not measured; zero costPerWin is a neutral gate input, not a measurement.",
+    "measurements": [
+      {
+        "source": "d3f93cee9abb9f76245fd91feb2be54aedc5c05a50849735c62ab9ea25f23809",
+        "suite": "holdout",
+        "score": {
+          "primary": 0,
+          "noopRate": 1,
+          "costPerWin": 0,
+          "regressed": false,
+          "itemWins": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        },
+        "holdout": {
+          "passed": 0,
+          "total": 19
+        },
+        "anchor": {
+          "passed": 9,
+          "total": 9
+        },
+        "extra": {
+          "passed": 0,
+          "total": 18
+        },
+        "httpTests": null
+      },
+      {
+        "source": "d3f93cee9abb9f76245fd91feb2be54aedc5c05a50849735c62ab9ea25f23809",
+        "suite": "anchor",
+        "score": {
+          "primary": 1,
+          "noopRate": 0,
+          "costPerWin": 0,
+          "regressed": false,
+          "itemWins": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "holdout": {
+          "passed": 0,
+          "total": 19
+        },
+        "anchor": {
+          "passed": 9,
+          "total": 9
+        },
+        "extra": {
+          "passed": 0,
+          "total": 18
+        },
+        "httpTests": {
+          "exit": 0,
+          "names": [
+            "# Subtest: CORS preflight advertises only implemented methods",
+            "# Subtest: health endpoint remains available",
+            "# Subtest: malformed JSON returns a bounded JSON error",
+            "# Subtest: missing JSON content type is rejected",
+            "# Subtest: missing object payload is rejected",
+            "# Subtest: oversized JSON is rejected",
+            "# Subtest: valid agent envelope is accepted"
+          ]
+        }
+      },
+      {
+        "source": "78e430d3501140b32b7efbb9f9acbee35da43bc1e6372a5065df76e03ddccbcb",
+        "suite": "holdout",
+        "score": {
+          "primary": 1,
+          "noopRate": 0,
+          "costPerWin": 0,
+          "regressed": false,
+          "itemWins": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "holdout": {
+          "passed": 19,
+          "total": 19
+        },
+        "anchor": {
+          "passed": 9,
+          "total": 9
+        },
+        "extra": {
+          "passed": 18,
+          "total": 18
+        },
+        "httpTests": null
+      },
+      {
+        "source": "78e430d3501140b32b7efbb9f9acbee35da43bc1e6372a5065df76e03ddccbcb",
+        "suite": "anchor",
+        "score": {
+          "primary": 1,
+          "noopRate": 0,
+          "costPerWin": 0,
+          "regressed": false,
+          "itemWins": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        "holdout": {
+          "passed": 19,
+          "total": 19
+        },
+        "anchor": {
+          "passed": 9,
+          "total": 9
+        },
+        "extra": {
+          "passed": 18,
+          "total": 18
+        },
+        "httpTests": {
+          "exit": 0,
+          "names": [
+            "# Subtest: CORS preflight advertises only implemented methods",
+            "# Subtest: health endpoint remains available",
+            "# Subtest: malformed JSON returns a bounded JSON error",
+            "# Subtest: missing JSON content type is rejected",
+            "# Subtest: missing object payload is rejected",
+            "# Subtest: oversized JSON is rejected",
+            "# Subtest: valid agent envelope is accepted"
+          ]
+        }
+      }
+    ]
+  },
+  "commands": {
+    "rufloInit": "RUFLO_DAEMON_AUTOSTART=0 node ../cycle-tools-20261017/node_modules/ruflo/bin/ruflo.js swarm init --topology hierarchical --max-agents 1 --auto-scale false",
+    "rufloPre": "RUFLO_DAEMON_AUTOSTART=0 node ../cycle-tools-20261017/node_modules/ruflo/bin/ruflo.js hooks pre-task --task-id sentinel-ci-20261018b --description 'Repair Sentinel integration startup and fail-closed aggregate gate; all remaining Rust and CI failures continue blocking merge' --format json",
+    "metaharness": "node ../cycle-tools-20261017/node_modules/metaharness/dist/bin.js score . --json",
+    "darwin": "node ../cycle-tools-20261017/node_modules/@metaharness/darwin/dist/cli.js evolve . --generations 1 --children 2 --concurrency 1 --seed 2026101814 --sandbox real --selection pareto",
+    "flywheel": "node tests/evaluate-ci.mjs ../sentinel-baseline-oct18b . ../cycle-tools-20261017 OUTPUT.json",
+    "offlinePost": "RUFLO_DAEMON_AUTOSTART=0 RUFLO_MODEL_DIR=/workspace/scratch/4f25900b71ff/ruflo-models python3 /workspace/scratch/4f25900b71ff/research-lab-blockers/scripts/offline-exec.py node --import /workspace/scratch/4f25900b71ff/research-lab-blockers/scripts/ruflo-local-model.mjs /workspace/scratch/4f25900b71ff/cycle-tools-20261017/node_modules/ruflo/bin/ruflo.js hooks post-task --task-id sentinel-ci-20261018b --success false --quality 0.8 --agent codex --agent-role coordinator --task 'Sentinel aggregate repaired: frozen 19/19 non-success cases and 9/9 anchors, 54 Node tests pass, real Flywheel signed replay passes; Darwin tied and rejected. Integration startup under hosted evaluation. Rust formatting, missing committed lockfile, hosted private infra auth and npm audit remain merge blockers; no merge.' --store-results --format json",
+    "tests": "npm ci; npm test; npm audit --omit=dev --json; npm audit --json; cargo test --workspace --all-features --locked; cargo build --workspace --locked; cargo clippy --all-targets --all-features --locked -- -D warnings; cargo fmt --all -- --check; cargo +1.99.0 audit --json"
+  },
+  "tools": {
+    "ruflo": "3.56.3",
+    "transformers": "4.3.1",
+    "metaharness": "0.4.17",
+    "darwin": "0.10.3",
+    "flywheel": "0.1.12",
+    "upstreamRevision": "e0dfd44da72b7adfb7c57fdd42d124be58ed7086",
+    "localNode": "24.19.0",
+    "ruosNode": "20.20.2",
+    "rust": "1.99.0",
+    "cargoAudit": "0.22.2",
+    "toolInstallLockSha256": "bc8742fe7ecf9b3783226f6a8144ba57305235958815e89143dd64aa28c04dd7",
+    "miniLM": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "offlineLauncherBlob": "287ee69d10d6e8607a39df5cb4833177e73756b9",
+    "offlinePreloadBlob": "ca6e349ae963cdbd56bde3d245d90517889ac753",
+    "rufloSwarm": "swarm-1792346463438-let44y",
+    "delegatedAgents": 0,
+    "learning": {
+      "taskId": "sentinel-ci-20261018b",
+      "success": false,
+      "learningUpdates": {
+        "patternsUpdated": 2,
+        "newPatterns": null,
+        "trajectoryId": null,
+        "controller": "intelligence+bridge-store",
+        "outcomePersisted": true,
+        "available": true
+      },
+      "feedback": {
+        "recorded": true,
+        "controller": "intelligence+bridge-store",
+        "updates": 2
+      },
+      "trajectory": {
+        "recorded": true
+      },
+      "stderr": "Offline local MiniLM model verified: 384 dimensions; remote loading disabled\n[INFO] Recording outcome for task: sentinel-ci-20261018b\nTransformers.js loaded: Xenova/all-MiniLM-L6-v2\n",
+      "sha256": "4615228c8feaf7d341b212b3ad67921f30bebb7fa1015ae79f1e555b86428837"
+    }
+  },
+  "optimization": {
+    "metaharnessBefore": 76,
+    "metaharnessAfter": 76,
+    "staticEstimatesNotBuildProof": true,
+    "darwin": {
+      "status": "NO_IMPROVEMENT",
+      "scores": [
+        0.985,
+        0.985,
+        0.985
+      ],
+      "surfaces": [
+        "planner baseline",
+        "retryPolicy",
+        "contextBuilder"
+      ],
+      "exit": 0,
+      "actualNpmTestExecutions": 9,
+      "rejectedCandidates": 2,
+      "substrate": "Real repository npm tests only, not Rust or Docker. Root archive promoted=true is initialization, not improvement."
+    },
+    "discarded": "An initial run overlapped correction of the new fixture parser (incorrectly included event names as job IDs). Entire run and apparent 0.183 lift rejected; clean frozen-fixture rerun used. An npm invocation from the workspace root failed ENOENT and is not counted as repository execution."
+  },
+  "results": {
+    "nodeBaseline": {
+      "exit": 0,
+      "passed": 7,
+      "skipped": 0
+    },
+    "nodeCandidate": {
+      "exit": 0,
+      "passed": 54,
+      "skipped": 0,
+      "runtimes": [
+        "Node24 local",
+        "Node20 RuOS",
+        "Node20 hosted"
+      ]
+    },
+    "npmAudit": {
+      "production": {
+        "exit": 1,
+        "total": 98,
+        "critical": 3,
+        "high": 39,
+        "moderate": 53,
+        "low": 3
+      },
+      "all": {
+        "exit": 1,
+        "total": 98,
+        "critical": 3,
+        "high": 39,
+        "moderate": 53,
+        "low": 3
+      },
+      "packageLockSha256": "f38865da2759f7e965bee0af8d46ddcee2999a457779ebab7948724c51edf826",
+      "lockUnchanged": true
+    },
+    "rust": {
+      "initialLockedTestExit": 101,
+      "initialLockedBuildExit": 101,
+      "initialLockedClippyExit": 101,
+      "reason": "No committed Cargo.lock. Diagnostic cargo test without --locked generated a lock locally; cargo-audit later independently generated byte-identical candidate lock. Neither lock is published as a validated dependency change.",
+      "resolvedDiagnosticLockSha256": "57978e8eabc5723a6b3eb3b8e939bd69a9024faf9b8596691743509512415df7",
+      "baselineDiagnosticTestExit": 101,
+      "baselineErrors": {
+        "alertingTestCompilation": 38,
+        "apiTestCompilation": 30
+      },
+      "baselineRustTestsCompleted": 0,
+      "formatExit": 1,
+      "auditExit": 1,
+      "auditVulnerabilities": 7,
+      "auditUnmaintainedWarnings": 6,
+      "auditAdvisoryDatabase": "999ec89d5d3f10f20be14750ec8c2d8b44e0ac9b",
+      "resolvedDiagnosticDependencyCount": 574,
+      "candidateBoundedNative": "At corrected implementation 40cf495: locked tests exit 101 with the same 38 alerting-test and 30 API-test errors; locked workspace build exits 0 in 43.37 seconds. The uncommitted diagnostic lock hashes identically to baseline. Final exact-head and Clippy results are recorded in PR metadata."
+    },
+    "runtime": {
+      "bootstrapExit": 0,
+      "openssl": "3.0.13",
+      "cmake": "3.28.3",
+      "extraSystemPackagesInstalled": [
+        "cmake",
+        "libcurl4-openssl-dev",
+        "libsasl2-dev"
+      ],
+      "previousFailures": [
+        "rdkafka-sys could not find cmake",
+        "rdkafka-sys could not find curl/curl.h"
+      ],
+      "docker": "docker --version / docker compose version: executable not found on RuOS. Actual container validation performed by hosted CI."
+    }
+  },
+  "hosted": {
+    "baselineRun": 38445143556,
+    "firstCandidateRun": 39152463593,
+    "firstCandidateIntegration": "Startup failed because new cub zk-ready healthcheck passed host and port separately; candidate rejected, corrected to host:port and rerun.",
+    "correctedRun": 39152719633,
+    "integrationJob": 117749481916,
+    "correctedIntegrationSteps": {
+      "start": "success",
+      "verifyReadiness": "success",
+      "runRustIntegration": "failure before compilation: private infra-config Git authentication unavailable",
+      "diagnostics": "success",
+      "cleanup": "success"
+    },
+    "containersHealthy": [
+      "zookeeper",
+      "kafka",
+      "influxdb",
+      "rabbitmq",
+      "redis"
+    ],
+    "rabbitMQFixtureAuthentication": "success"
+  },
+  "architecture": {
+    "coreMemory": "Task-start and risk-check returned unscreened=true with no playbook entries or anti-pattern warnings; no unseen guidance claimed.",
+    "mapping": [
+      "Rust core and TypeScript production sources untouched",
+      "Ephemeral integration fixtures only: no host data mounts, shared names/networks or new production persistence",
+      "No GCP service, IAM or RuVector/Cloud SQL architecture changes",
+      "No credentials extracted, alternate auth or approval workaround; CI private infra access remains blocked",
+      "No deployments, publication, force push or branch protection bypass"
+    ]
+  },
+  "conflicts": {
+    "mainAncestorOfBranch": true,
+    "resolutions": [],
+    "mainUnchanged": true
+  },
+  "rollback": {
+    "command": "Revert the two implementation commits (40cf495 then f89b1e5) or revert a future squash merge. Evidence files may be retained. No deployment rollback was performed.",
+    "inverseParentWorkflowRetained": true,
+    "reversePatchCheckExit": 0
+  },
+  "sources": [
+    "https://docs.docker.com/reference/cli/docker/compose/up/",
+    "https://docs.confluent.io/platform/7.5/installation/docker/config-reference.html",
+    "https://github.com/confluentinc/confluent-docker-utils/blob/master/confluent/docker_utils/cub.py"
+  ]
+}
