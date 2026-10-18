@@ -7,7 +7,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
-      test: ["CMD", "cub", "zk-ready", "localhost", "2181", "10"]
+      test: ["CMD", "cub", "zk-ready", "localhost:2181", "10"]
       interval: 5s
       timeout: 15s
       retries: 12
@@ -52,6 +52,9 @@ services:
   rabbitmq:
     image: rabbitmq:3.12-management
     ports: ["127.0.0.1:5672:5672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: sentinel-ci
+      RABBITMQ_DEFAULT_PASS: sentinel-ci-fixture
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 5s

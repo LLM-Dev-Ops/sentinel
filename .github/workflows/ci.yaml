@@ -255,6 +255,7 @@ jobs:
           docker compose exec -T kafka kafka-broker-api-versions --bootstrap-server localhost:9092
           docker compose exec -T influxdb influx ping
           docker compose exec -T rabbitmq rabbitmq-diagnostics -q ping
+          docker compose exec -T rabbitmq rabbitmqctl authenticate_user sentinel-ci sentinel-ci-fixture
           docker compose exec -T redis redis-cli ping | grep -qx PONG
 
       - name: Run integration tests
@@ -262,11 +263,15 @@ jobs:
         env:
           KAFKA_BROKERS: localhost:9093
           INFLUXDB_URL: http://localhost:8086
-          RABBITMQ_URL: amqp://guest:guest@localhost:5672/%2f
+          RABBITMQ_URL: amqp://sentinel-ci:sentinel-ci-fixture@localhost:5672/%2f
 
       - name: Dependency diagnostics
         if: failure()
-        run: docker compose logs --no-color --tail 100
+        run: |
+          docker compose logs --no-color --tail 100
+          for container in $(docker compose ps --all --quiet); do
+            docker inspect --format '{{json .State.Health}}' "$container"
+          done
 
       - name: Stop dependencies
         if: always()
