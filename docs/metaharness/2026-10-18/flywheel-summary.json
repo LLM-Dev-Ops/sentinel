@@ -1,0 +1,206 @@
+{
+  "contractSha256": "59c26d090c7abec219fa5871bb09a4dee06563d506f8c75cf29df110393ee60d",
+  "fixtureSha256": "c28699d54ae357782f07c804f2142d21e9dc0ab0930950fa44d289b01959c066",
+  "baselineSource": "d3f93cee9abb9f76245fd91feb2be54aedc5c05a50849735c62ab9ea25f23809",
+  "candidateSource": "78e430d3501140b32b7efbb9f9acbee35da43bc1e6372a5065df76e03ddccbcb",
+  "promotions": 1,
+  "fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+  "replay": {
+    "pass": true,
+    "checks": {
+      "receipts": true,
+      "reachesRoot": true,
+      "contiguousParents": true,
+      "allPromoted": true,
+      "gateUnchanged": true,
+      "gateReExecutes": true,
+      "allCommitsReceipts": true,
+      "sealedFieldsAuthentic": true
+    },
+    "failures": [],
+    "chainSummary": "gen1(aggregate) → gen0(root)"
+  },
+  "boundary": "Component aggregate decision boundary only, not real GitHub event scheduling or Docker/Rust integration execution. Expressions are expanded only for the documented fixture result fields, then the actual Bash body executes. Hosted startup, cleanup, full Rust, security and CI gates remain independent. No production rollback executed; inverse parent workflow bytes retained. Cost/latency/energy not measured; zero costPerWin is a neutral gate input, not a measurement.",
+  "measurements": [
+    {
+      "source": "d3f93cee9abb9f76245fd91feb2be54aedc5c05a50849735c62ab9ea25f23809",
+      "suite": "holdout",
+      "score": {
+        "primary": 0,
+        "noopRate": 1,
+        "costPerWin": 0,
+        "regressed": false,
+        "itemWins": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "holdout": {
+        "passed": 0,
+        "total": 19
+      },
+      "anchor": {
+        "passed": 9,
+        "total": 9
+      },
+      "extra": {
+        "passed": 0,
+        "total": 18
+      },
+      "httpTests": null
+    },
+    {
+      "source": "d3f93cee9abb9f76245fd91feb2be54aedc5c05a50849735c62ab9ea25f23809",
+      "suite": "anchor",
+      "score": {
+        "primary": 1,
+        "noopRate": 0,
+        "costPerWin": 0,
+        "regressed": false,
+        "itemWins": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "holdout": {
+        "passed": 0,
+        "total": 19
+      },
+      "anchor": {
+        "passed": 9,
+        "total": 9
+      },
+      "extra": {
+        "passed": 0,
+        "total": 18
+      },
+      "httpTests": {
+        "exit": 0,
+        "names": [
+          "# Subtest: CORS preflight advertises only implemented methods",
+          "# Subtest: health endpoint remains available",
+          "# Subtest: malformed JSON returns a bounded JSON error",
+          "# Subtest: missing JSON content type is rejected",
+          "# Subtest: missing object payload is rejected",
+          "# Subtest: oversized JSON is rejected",
+          "# Subtest: valid agent envelope is accepted"
+        ]
+      }
+    },
+    {
+      "source": "78e430d3501140b32b7efbb9f9acbee35da43bc1e6372a5065df76e03ddccbcb",
+      "suite": "holdout",
+      "score": {
+        "primary": 1,
+        "noopRate": 0,
+        "costPerWin": 0,
+        "regressed": false,
+        "itemWins": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "holdout": {
+        "passed": 19,
+        "total": 19
+      },
+      "anchor": {
+        "passed": 9,
+        "total": 9
+      },
+      "extra": {
+        "passed": 18,
+        "total": 18
+      },
+      "httpTests": null
+    },
+    {
+      "source": "78e430d3501140b32b7efbb9f9acbee35da43bc1e6372a5065df76e03ddccbcb",
+      "suite": "anchor",
+      "score": {
+        "primary": 1,
+        "noopRate": 0,
+        "costPerWin": 0,
+        "regressed": false,
+        "itemWins": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "holdout": {
+        "passed": 19,
+        "total": 19
+      },
+      "anchor": {
+        "passed": 9,
+        "total": 9
+      },
+      "extra": {
+        "passed": 18,
+        "total": 18
+      },
+      "httpTests": {
+        "exit": 0,
+        "names": [
+          "# Subtest: CORS preflight advertises only implemented methods",
+          "# Subtest: health endpoint remains available",
+          "# Subtest: malformed JSON returns a bounded JSON error",
+          "# Subtest: missing JSON content type is rejected",
+          "# Subtest: missing object payload is rejected",
+          "# Subtest: oversized JSON is rejected",
+          "# Subtest: valid agent envelope is accepted"
+        ]
+      }
+    }
+  ]
+}
