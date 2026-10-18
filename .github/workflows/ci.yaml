@@ -231,16 +231,10 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    services:
-      kafka:
-        image: confluentinc/cp-kafka:7.5.0
-        env:
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-        options: >-
-          --health-cmd "kafka-broker-api-versions --bootstrap-server localhost:9092"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    timeout-minutes: 20
+    env:
+      COMPOSE_FILE: docker-compose.ci.yaml
+      COMPOSE_PROJECT_NAME: sentinel-ci-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Checkout code
@@ -253,21 +247,30 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Start dependencies
-        run: docker-compose -f docker-compose.yaml up -d kafka influxdb rabbitmq redis
+        run: docker compose up --detach --wait --wait-timeout 180
 
-      - name: Wait for services
-        run: sleep 30
+      - name: Verify dependency readiness
+        run: |
+          docker compose ps
+          docker compose exec -T kafka kafka-broker-api-versions --bootstrap-server localhost:9092
+          docker compose exec -T influxdb influx ping
+          docker compose exec -T rabbitmq rabbitmq-diagnostics -q ping
+          docker compose exec -T redis redis-cli ping | grep -qx PONG
 
       - name: Run integration tests
         run: cargo test --workspace --test '*' --verbose
         env:
           KAFKA_BROKERS: localhost:9093
           INFLUXDB_URL: http://localhost:8086
-          RABBITMQ_URL: amqp://localhost:5672
+          RABBITMQ_URL: amqp://guest:guest@localhost:5672/%2f
+
+      - name: Dependency diagnostics
+        if: failure()
+        run: docker compose logs --no-color --tail 100
 
       - name: Stop dependencies
         if: always()
-        run: docker-compose down
+        run: docker compose down --volumes --remove-orphans
 
   # All checks pass
   ci-success:
@@ -281,13 +284,27 @@ jobs:
       - security-audit
       - dependency-check
       - build
+      - integration-tests
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check all jobs
         run: |
-          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
-            echo "One or more CI jobs failed"
-            exit 1
-          fi
+          results=(
+            "${{ needs.node.result }}"
+            "${{ needs.fmt.result }}"
+            "${{ needs.clippy.result }}"
+            "${{ needs.test.result }}"
+            "${{ needs.coverage.result }}"
+            "${{ needs.security-audit.result }}"
+            "${{ needs.dependency-check.result }}"
+            "${{ needs.build.result }}"
+            "${{ needs.integration-tests.result }}"
+          )
+          for result in "${results[@]}"; do
+            if [[ "$result" != "success" ]]; then
+              echo "A required CI job did not succeed: $result"
+              exit 1
+            fi
+          done
           echo "All CI jobs passed!"
