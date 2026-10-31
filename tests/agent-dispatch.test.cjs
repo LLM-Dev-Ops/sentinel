@@ -10,7 +10,7 @@ test('agent dispatch accepts only own registered handlers', async () => {
     for (const name of ['constructor', '__proto__', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable']) {
       const response = await fetch(`${root}/v1/sentinel/${name}`, {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({payload: {}}), signal: AbortSignal.timeout(2000),
+        body: JSON.stringify({payload: {reference_data: Array(10).fill(1), current_data: Array(10).fill(1), signals: [{id: 'fixture'}]}}), signal: AbortSignal.timeout(2000),
       });
       assert.equal(response.status, 404, name);
       const body = await response.json();
@@ -19,7 +19,7 @@ test('agent dispatch accepts only own registered handlers', async () => {
     }
     for (const name of ['anomaly', 'drift', 'alert', 'correlation', 'rca']) {
       const response = await fetch(`${root}/v1/sentinel/${name}`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({payload: {}}),
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({payload: {reference_data: Array(10).fill(1), current_data: Array(10).fill(1), signals: [{id: 'fixture'}]}}),
       });
       assert.equal(response.status, 200, name);
     }

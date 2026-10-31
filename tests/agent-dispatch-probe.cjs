@@ -10,7 +10,7 @@ const {api} = require(resolve(process.argv[2] || '.', 'lib/index.js'));
     for (const [group, cases, expected] of [['holdout', ['constructor', '__proto__', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable'], 404], ['anchors', names, 200]]) {
       for (const name of cases) {
         try {
-          const response = await fetch(`${root}/v1/sentinel/${name}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({payload: {}}), signal: AbortSignal.timeout(2000)});
+          const response = await fetch(`${root}/v1/sentinel/${name}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({payload: {reference_data: Array(10).fill(1), current_data: Array(10).fill(1), signals: [{id: 'fixture'}]}}), signal: AbortSignal.timeout(2000)});
           const body = await response.json();
           const envelope = group === 'anchors' || (body.error === `Unknown agent: ${name}` && JSON.stringify(body.available_agents) === JSON.stringify(names));
           report[group].push({name, status: response.status, passed: response.status === expected && envelope});
