@@ -78,7 +78,10 @@ function validateAgentEnvelope(req: Request, res: Response, next: NextFunction):
 
 app.post("/v1/sentinel/:agent", validateAgentEnvelope, async (req: Request, res: Response, next: NextFunction) => {
   const { agent } = req.params;
-  const handler = agentHandlers[agent];
+  // Reject inherited Object.prototype names before resolving a handler.
+  const handler = Object.prototype.hasOwnProperty.call(agentHandlers, agent)
+    ? agentHandlers[agent]
+    : undefined;
 
   if (!handler) {
     res.status(404).json({
@@ -119,3 +122,4 @@ app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
 // ---------------------------------------------------------------------------
 
 export const api = app;
+
