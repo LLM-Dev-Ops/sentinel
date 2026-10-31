@@ -1,0 +1,20 @@
+harness analyze-repo — /tmp/sentinel-oct31
+
+Languages: rust, typescript
+Signals: claude, ci
+
+Best archetype: typescript-sdk-harness  (78% · lexical)
+Harness:  sentinel-oct31-harness  ·  template vertical:coding  ·  hosts claude-code
+MCP: local  ·  risk: shell gated, network gated, file-write read-scoped
+Agents:   architect, implementer, reviewer, test-writer
+Commands: doctor, review-diff
+Suggested commands (execution disabled, never run):
+  - npm run build  [trust: inferred]
+  - cargo build  [trust: inferred]
+  - npm test  [trust: inferred]
+  - cargo test  [trust: inferred]
+
+Wrote: /tmp/sentinel-oct31/repo-profile.json
+Wrote: /tmp/sentinel-oct31/harness-plan.json
+
+Scaffold it:  harness analyze-repo . --scaffold sentinel-oct31-harness

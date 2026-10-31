@@ -1,0 +1,208 @@
+{
+  "task": "sentinel-oct31",
+  "status": "BLOCKED",
+  "sourceHead": "510a128bc9792d420776a60d435ca151dc54f534",
+  "baseline": "6e26c3cc55826c8069c65eb70445bf788e4d2d28",
+  "versions": {
+    "ruflo": "3.56.3",
+    "metaharness": "0.4.2",
+    "darwin": "0.10.3",
+    "flywheel": "0.1.12",
+    "transformers": "4.3.1",
+    "node": "20.20.2",
+    "rust": "1.88.0",
+    "openssl": "3.0.13"
+  },
+  "runtime": {
+    "bootstrap": 0,
+    "homeFull": true,
+    "npmCi": [
+      {
+        "attempt": 1,
+        "exit": 1
+      },
+      {
+        "attempt": 2,
+        "exit": 228
+      },
+      {
+        "attempt": 3,
+        "exit": 228
+      }
+    ],
+    "reusedDependencies": "/home/ruv/work/sentinel-candidate-oct18b/node_modules",
+    "lockfileByteComparison": 0,
+    "npmCache": "/tmp/sentinel-oct31-npm-cache",
+    "noUnrelatedDataDeleted": true
+  },
+  "rejected": {
+    "initialFixture": "Empty payload expected200 for drift/correlation but correctly returned400; corrected to minimum10sample arrays and nonempty signals equally in both revisions; original tests/handler rules unchanged.",
+    "initialEvaluator": "Untracked probe overlay prevented baseline checkout; evaluator aborted fixture-byte check; moved overlay aside and reran exact frozen baseline."
+  },
+  "benchmark": {
+    "boundary": "Three alternating loopback probe processes per side, not production performance. Baseline constructor has2second fixture deadline; candidate improvement removes that hang, not a general throughput claim.",
+    "trials": [
+      {
+        "side": "baseline",
+        "ms": 2247,
+        "holdout": 0,
+        "anchors": 5
+      },
+      {
+        "side": "candidate",
+        "ms": 285,
+        "holdout": 5,
+        "anchors": 5
+      },
+      {
+        "side": "candidate",
+        "ms": 257,
+        "holdout": 5,
+        "anchors": 5
+      },
+      {
+        "side": "baseline",
+        "ms": 2223,
+        "holdout": 0,
+        "anchors": 5
+      },
+      {
+        "side": "baseline",
+        "ms": 2234,
+        "holdout": 0,
+        "anchors": 5
+      },
+      {
+        "side": "candidate",
+        "ms": 279,
+        "holdout": 5,
+        "anchors": 5
+      }
+    ]
+  },
+  "darwin": {
+    "status": "NO_IMPROVEMENT",
+    "score": 0.435,
+    "delta": 0,
+    "taskPass": 0,
+    "reason": "Real sandbox scrubs npm cache environment; native npm processes exit228 due full persistent volume; no optimization success inferred."
+  },
+  "learning": {
+    "available": true,
+    "outcomePersisted": true,
+    "feedbackRecorded": true,
+    "trajectoryRecorded": true,
+    "policyMirrorWarning": "ENOSPC",
+    "model": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "dimensions": 384,
+    "remoteLoading": false,
+    "kernelOffline": true
+  },
+  "ci": [
+    {
+      "id": 124533831935,
+      "name": "Dependency Check",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 124533832013,
+      "name": "Test Suite (ubuntu-latest, beta)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124533832021,
+      "name": "Code Coverage",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 124533832027,
+      "name": "Integration Tests",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124533832032,
+      "name": "Test Suite (macos-latest, stable)",
+      "status": "queued",
+      "conclusion": null
+    },
+    {
+      "id": 124533832039,
+      "name": "Format Check",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124533832049,
+      "name": "Test Suite (ubuntu-latest, stable)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124533832053,
+      "name": "Build (macos-latest, aarch64-apple-darwin)",
+      "status": "queued",
+      "conclusion": null
+    },
+    {
+      "id": 124533832054,
+      "name": "Node API",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 124533832059,
+      "name": "Test Suite (ubuntu-latest, 1.75.0)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124533832075,
+      "name": "Build (ubuntu-latest, x86_64-unknown-linux-gnu)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 124533832093,
+      "name": "Build (macos-latest, x86_64-apple-darwin)",
+      "status": "queued",
+      "conclusion": null
+    },
+    {
+      "id": 124533832106,
+      "name": "Build (ubuntu-latest, x86_64-unknown-linux-musl)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 124533832136,
+      "name": "Test Suite (macos-latest, beta)",
+      "status": "queued",
+      "conclusion": null
+    },
+    {
+      "id": 124533832152,
+      "name": "Security Audit",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 124533832159,
+      "name": "Clippy Lint",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  ],
+  "conflicts": {
+    "ahead": 8,
+    "behind": 0,
+    "mergeTreeExit": 0,
+    "reverseCheckExit": 0
+  },
+  "merged": false,
+  "architecture": "Rust/TS integration and stateless IAM/env architecture unchanged; no new DB/IAM/deploy changes",
+  "coreMemory": "task_start/check_risk unscreened empty"
+}

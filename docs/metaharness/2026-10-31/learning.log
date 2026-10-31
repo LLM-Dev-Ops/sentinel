@@ -1,0 +1,31 @@
+Offline local MiniLM model verified: 384 dimensions; remote loading disabled
+[INFO] Recording outcome for task: sentinel-oct31
+[policy] anchor mirror not written: ENOSPC: no space left on device, mkdir '/home/ruv/.config/ruflo/policy-trust/f98bac0d49321a0fbe82d41585cbd0747df24495aef2ecf09437e84deba11f40'
+Transformers.js loaded: Xenova/all-MiniLM-L6-v2
+{
+  "taskId": "sentinel-oct31",
+  "success": false,
+  "duration": 696,
+  "learningUpdates": {
+    "patternsUpdated": 2,
+    "newPatterns": null,
+    "trajectoryId": null,
+    "controller": "intelligence+bridge-store",
+    "outcomePersisted": true,
+    "available": true
+  },
+  "trajectory": {
+    "recorded": true
+  },
+  "quality": 0.8,
+  "pheromone": {
+    "active": false,
+    "reason": "no running pheromone-adaptive swarm"
+  },
+  "feedback": {
+    "recorded": true,
+    "controller": "intelligence+bridge-store",
+    "updates": 2
+  },
+  "timestamp": "2026-10-31T12:12:47.428Z"
+}

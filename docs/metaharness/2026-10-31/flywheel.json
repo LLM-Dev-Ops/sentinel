@@ -1,0 +1,589 @@
+{
+  "baselineRevision": "6e26c3cc55826c8069c65eb70445bf788e4d2d28",
+  "candidateRevision": "510a128bc9792d420776a60d435ca151dc54f534",
+  "baseline": {
+    "probe": {
+      "holdout": [
+        {
+          "name": "constructor",
+          "passed": false,
+          "error": "TimeoutError"
+        },
+        {
+          "name": "__proto__",
+          "status": 500,
+          "passed": false
+        },
+        {
+          "name": "hasOwnProperty",
+          "status": 500,
+          "passed": false
+        },
+        {
+          "name": "isPrototypeOf",
+          "status": 500,
+          "passed": false
+        },
+        {
+          "name": "propertyIsEnumerable",
+          "status": 500,
+          "passed": false
+        }
+      ],
+      "anchors": [
+        {
+          "name": "anomaly",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "drift",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "alert",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "correlation",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "rca",
+          "status": 200,
+          "passed": true
+        }
+      ]
+    },
+    "checks": {
+      "buildNode": {
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 1355,
+        "sha256": "85407c43c42aad27af2ad0cda034ad4392d11c28e7e07783d7b47757c246b4e7",
+        "pass": true
+      },
+      "probe": {
+        "command": [
+          "/usr/bin/node",
+          "tests/agent-dispatch-probe.cjs",
+          "."
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 2226,
+        "sha256": "6f5391e0516f8db63d96fe43f2e87dbf1e977c264de50f9fac1d1c550201d1cc",
+        "pass": false
+      },
+      "node": {
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 3615,
+        "sha256": "37177d6f2875065a236228549143d913d0b43c9fe0217ac26b80a163d6f09050",
+        "pass": false
+      },
+      "test": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "test",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 1126,
+        "sha256": "4a89dcd120b206af635d814aeb7114a11ea61abaf1585b3b41f7ecc55e3685cd",
+        "pass": false
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "build",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 517,
+        "sha256": "4a89dcd120b206af635d814aeb7114a11ea61abaf1585b3b41f7ecc55e3685cd",
+        "pass": false
+      },
+      "clippy": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "clippy",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 568,
+        "sha256": "4a89dcd120b206af635d814aeb7114a11ea61abaf1585b3b41f7ecc55e3685cd",
+        "pass": false
+      },
+      "fmt": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 458,
+        "sha256": "4785d4aae42d27880f8c51c78a044fc908c4bc9d321421ab9ee3b61161360f60",
+        "pass": false
+      },
+      "audit": {
+        "command": [
+          "cargo",
+          "audit",
+          "--file",
+          "Cargo.lock",
+          "--no-fetch",
+          "--json"
+        ],
+        "exit": 2,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 362,
+        "sha256": "fefc5fe96b02fb512004c18d1d3a809fea38bac9bb6862874d2df28d4221c198",
+        "pass": false
+      },
+      "npmAudit": {
+        "command": [
+          "npm",
+          "audit",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 5724,
+        "sha256": "7d93dcbf667b1f2183d18ef2d374093b47e840640d8c33aaadbd2d4c8e343db8",
+        "pass": false
+      },
+      "productionAudit": {
+        "command": [
+          "npm",
+          "audit",
+          "--omit=dev",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 2067,
+        "sha256": "1b9cbb846033de546e1e6f69f8660ad5becb826040fd13a0d77fa8531ea7dda0",
+        "pass": false
+      }
+    }
+  },
+  "candidate": {
+    "probe": {
+      "holdout": [
+        {
+          "name": "constructor",
+          "status": 404,
+          "passed": true
+        },
+        {
+          "name": "__proto__",
+          "status": 404,
+          "passed": true
+        },
+        {
+          "name": "hasOwnProperty",
+          "status": 404,
+          "passed": true
+        },
+        {
+          "name": "isPrototypeOf",
+          "status": 404,
+          "passed": true
+        },
+        {
+          "name": "propertyIsEnumerable",
+          "status": 404,
+          "passed": true
+        }
+      ],
+      "anchors": [
+        {
+          "name": "anomaly",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "drift",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "alert",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "correlation",
+          "status": 200,
+          "passed": true
+        },
+        {
+          "name": "rca",
+          "status": 200,
+          "passed": true
+        }
+      ]
+    },
+    "checks": {
+      "buildNode": {
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exit": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 1295,
+        "sha256": "85407c43c42aad27af2ad0cda034ad4392d11c28e7e07783d7b47757c246b4e7",
+        "pass": true
+      },
+      "probe": {
+        "command": [
+          "/usr/bin/node",
+          "tests/agent-dispatch-probe.cjs",
+          "."
+        ],
+        "exit": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 264,
+        "sha256": "c6c7656a4d7be0770a78e331b48304972f8fae799da6f0fefacf78c217ae4aa4",
+        "pass": true
+      },
+      "node": {
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exit": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 1785,
+        "sha256": "4ec5e90e6b4dc780de47358692d968f5f7a6e3832c78f60b1fb36782fae8e21a",
+        "pass": true
+      },
+      "test": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "test",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 521,
+        "sha256": "4bb51e73cf68df01ec73852721554c52a73498deb54e6532a5344cd672413756",
+        "pass": false
+      },
+      "build": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "build",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 527,
+        "sha256": "4bb51e73cf68df01ec73852721554c52a73498deb54e6532a5344cd672413756",
+        "pass": false
+      },
+      "clippy": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "clippy",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 582,
+        "sha256": "4bb51e73cf68df01ec73852721554c52a73498deb54e6532a5344cd672413756",
+        "pass": false
+      },
+      "fmt": {
+        "command": [
+          "cargo",
+          "+1.88.0",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 367,
+        "sha256": "c681c0ef826818acc71b44c890852e0d8c2c6457b56d02d5f84d79ef6325e1be",
+        "pass": false
+      },
+      "audit": {
+        "command": [
+          "cargo",
+          "audit",
+          "--file",
+          "Cargo.lock",
+          "--no-fetch",
+          "--json"
+        ],
+        "exit": 2,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 66,
+        "sha256": "fefc5fe96b02fb512004c18d1d3a809fea38bac9bb6862874d2df28d4221c198",
+        "pass": false
+      },
+      "npmAudit": {
+        "command": [
+          "npm",
+          "audit",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 2170,
+        "sha256": "7d93dcbf667b1f2183d18ef2d374093b47e840640d8c33aaadbd2d4c8e343db8",
+        "pass": false
+      },
+      "productionAudit": {
+        "command": [
+          "npm",
+          "audit",
+          "--omit=dev",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 1995,
+        "sha256": "d54a03eb9dfc4ae99154794e7e48d4a3aa3fa82fe9be8428fd8424d42d8f9393",
+        "pass": false
+      }
+    }
+  },
+  "result": {
+    "liftCurve": [
+      {
+        "generation": 0,
+        "primary": 0,
+        "delta": 0,
+        "anchor": 1
+      }
+    ],
+    "promotions": [],
+    "lineage": {
+      "commits": {}
+    },
+    "replayBundle": {
+      "data_source": "LIVE",
+      "root_id": "root",
+      "chain": [
+        {
+          "id": "root",
+          "generation": 0,
+          "parents": [],
+          "mutation": null,
+          "primaryDelta": 0,
+          "anchorScore": 1,
+          "verdict": "ROOT",
+          "failureReasons": [],
+          "receipt": {
+            "payload": {
+              "kind": "root",
+              "root": "root"
+            },
+            "signature": "PKP+JWGqSB5zNL+W3jHmFklEz9InUOpa7vG869ImwZOEjCiC2aEr4XzCVaXicX9/Q/wHMgWm9c44U0Lqk+diCA==",
+            "publicKey": "MCowBQYDK2VwAyEApYLHGx0xDf2RYTkF2eTQ6Ij4naecEXI5hfOVdK1vOVw=",
+            "alg": "ed25519"
+          },
+          "createdAt": "gen-0"
+        }
+      ],
+      "all_commits": [
+        {
+          "id": "root__revision_gen1",
+          "generation": 1,
+          "parents": [
+            "root"
+          ],
+          "mutation": {
+            "target": "revision",
+            "summary": "Restrict dispatch to own registered handlers",
+            "inverse": {
+              "path": "src/index.ts",
+              "parentBytes": "import express, { Request, Response, NextFunction } from \"express\";\nimport cors from \"cors\";\nimport { handleAnomaly } from \"./agents/anomaly\";\nimport { handleDrift } from \"./agents/drift\";\nimport { handleAlert } from \"./agents/alert\";\nimport { handleCorrelation } from \"./agents/correlation\";\nimport { handleRca } from \"./agents/rca\";\n\nconst app = express();\n\n// ---------------------------------------------------------------------------\n// Middleware\n// ---------------------------------------------------------------------------\n\nconst MAX_JSON_BODY = \"64kb\";\n\napp.use(express.json({ limit: MAX_JSON_BODY, strict: true }));\n\napp.use(\n  cors({\n    origin: \"*\",\n    methods: [\"GET\", \"POST\", \"OPTIONS\"],\n    allowedHeaders: [\n      \"X-Correlation-ID\",\n      \"X-API-Version\",\n      \"Content-Type\",\n      \"Authorization\",\n    ],\n  })\n);\n\n// ---------------------------------------------------------------------------\n// Health endpoint\n// ---------------------------------------------------------------------------\n\napp.get(\"/health\", (_req: Request, res: Response) => {\n  res.json({\n    healthy: true,\n    service: \"sentinel-agents\",\n    agents: 5,\n  });\n});\n\n// ---------------------------------------------------------------------------\n// Agent routes — POST /v1/sentinel/:agent\n// ---------------------------------------------------------------------------\n\nconst agentHandlers: Record<string, (req: Request, res: Response) => Promise<void>> = {\n  anomaly: handleAnomaly,\n  drift: handleDrift,\n  alert: handleAlert,\n  correlation: handleCorrelation,\n  rca: handleRca,\n};\n\nfunction isRecord(value: unknown): value is Record<string, unknown> {\n  return typeof value === \"object\" && value !== null && !Array.isArray(value);\n}\n\nfunction validateAgentEnvelope(req: Request, res: Response, next: NextFunction): void {\n  if (!req.is(\"application/json\")) {\n    res.status(415).json({ error: \"Content-Type must be application/json\" });\n    return;\n  }\n\n  if (!isRecord(req.body) || !isRecord(req.body.payload)) {\n    res.status(400).json({ error: \"Request body must contain an object payload\" });\n    return;\n  }\n\n  if (req.body.context !== undefined && !isRecord(req.body.context)) {\n    res.status(400).json({ error: \"context must be an object when provided\" });\n    return;\n  }\n\n  next();\n}\n\napp.post(\"/v1/sentinel/:agent\", validateAgentEnvelope, async (req: Request, res: Response, next: NextFunction) => {\n  const { agent } = req.params;\n  const handler = agentHandlers[agent];\n\n  if (!handler) {\n    res.status(404).json({\n      error: `Unknown agent: ${agent}`,\n      available_agents: Object.keys(agentHandlers),\n    });\n    return;\n  }\n\n  try {\n    await handler(req, res);\n  } catch (err) {\n    next(err);\n  }\n});\n\ninterface HttpError extends Error {\n  status?: number;\n  type?: string;\n}\n\napp.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {\n  if (err.type === \"entity.too.large\") {\n    res.status(413).json({ error: `JSON request body exceeds ${MAX_JSON_BODY}` });\n    return;\n  }\n\n  if (err.type === \"entity.parse.failed\" || (err instanceof SyntaxError && err.status === 400)) {\n    res.status(400).json({ error: \"Malformed JSON request body\" });\n    return;\n  }\n\n  res.status(500).json({ error: \"Internal server error\" });\n});\n\n// ---------------------------------------------------------------------------\n// Export for Cloud Functions\n// ---------------------------------------------------------------------------\n\nexport const api = app;\n",
+              "hash": "cd6aee97caae2afea1ffc9bf005ad174257fbfe6592912c91f4144891abfe05d"
+            }
+          },
+          "primaryDelta": 1,
+          "anchorScore": null,
+          "verdict": "REJECTED",
+          "failureReasons": [
+            "safety_regressed"
+          ],
+          "receipt": {
+            "payload": {
+              "kind": "candidate",
+              "id": "root__revision_gen1",
+              "target": "revision",
+              "verdict": "REJECTED",
+              "primaryDelta": 1,
+              "baselineScore": {
+                "primary": 0,
+                "noopRate": 1,
+                "costPerWin": 0,
+                "regressed": true
+              },
+              "candidateScore": {
+                "primary": 1,
+                "noopRate": 0,
+                "costPerWin": 0,
+                "regressed": true
+              },
+              "anchorScore": null,
+              "failureReasons": [
+                "safety_regressed"
+              ],
+              "parents": [
+                "root"
+              ],
+              "generation": 1
+            },
+            "signature": "FkseFO9f/hY2dyHAy+vC+9CO58TFy/k9U48bDUePhDawNb/i0z68S5RvHAQ5v5BxGLsYMvXey6sL6bNluzQZAg==",
+            "publicKey": "MCowBQYDK2VwAyEApYLHGx0xDf2RYTkF2eTQ6Ij4naecEXI5hfOVdK1vOVw=",
+            "alg": "ed25519"
+          },
+          "createdAt": "gen-1",
+          "baselineScore": {
+            "primary": 0,
+            "noopRate": 1,
+            "costPerWin": 0,
+            "regressed": true
+          },
+          "candidateScore": {
+            "primary": 1,
+            "noopRate": 0,
+            "costPerWin": 0,
+            "regressed": true
+          }
+        }
+      ],
+      "lift_curve": [
+        {
+          "generation": 0,
+          "primary": 0,
+          "delta": 0,
+          "anchor": 1
+        }
+      ],
+      "gate_fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+      "verified_improvements": 0,
+      "anchor_surviving_improvements": 0,
+      "milestone_reached": false,
+      "created_at": "gen-1"
+    },
+    "generationsRun": 1,
+    "milestoneReached": false,
+    "finalPolicy": {
+      "revision": "6e26c3cc55826c8069c65eb70445bf788e4d2d28"
+    }
+  },
+  "replay": {
+    "pass": true,
+    "checks": {
+      "receipts": true,
+      "reachesRoot": true,
+      "contiguousParents": true,
+      "allPromoted": true,
+      "gateUnchanged": true,
+      "gateReExecutes": true,
+      "allCommitsReceipts": true,
+      "sealedFieldsAuthentic": true
+    },
+    "failures": [],
+    "chainSummary": "gen0(root)"
+  },
+  "fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+  "decision": {
+    "promote": false,
+    "reasons": [
+      "safety_regressed"
+    ]
+  },
+  "rollback": {
+    "path": "src/index.ts",
+    "parentBytes": "import express, { Request, Response, NextFunction } from \"express\";\nimport cors from \"cors\";\nimport { handleAnomaly } from \"./agents/anomaly\";\nimport { handleDrift } from \"./agents/drift\";\nimport { handleAlert } from \"./agents/alert\";\nimport { handleCorrelation } from \"./agents/correlation\";\nimport { handleRca } from \"./agents/rca\";\n\nconst app = express();\n\n// ---------------------------------------------------------------------------\n// Middleware\n// ---------------------------------------------------------------------------\n\nconst MAX_JSON_BODY = \"64kb\";\n\napp.use(express.json({ limit: MAX_JSON_BODY, strict: true }));\n\napp.use(\n  cors({\n    origin: \"*\",\n    methods: [\"GET\", \"POST\", \"OPTIONS\"],\n    allowedHeaders: [\n      \"X-Correlation-ID\",\n      \"X-API-Version\",\n      \"Content-Type\",\n      \"Authorization\",\n    ],\n  })\n);\n\n// ---------------------------------------------------------------------------\n// Health endpoint\n// ---------------------------------------------------------------------------\n\napp.get(\"/health\", (_req: Request, res: Response) => {\n  res.json({\n    healthy: true,\n    service: \"sentinel-agents\",\n    agents: 5,\n  });\n});\n\n// ---------------------------------------------------------------------------\n// Agent routes — POST /v1/sentinel/:agent\n// ---------------------------------------------------------------------------\n\nconst agentHandlers: Record<string, (req: Request, res: Response) => Promise<void>> = {\n  anomaly: handleAnomaly,\n  drift: handleDrift,\n  alert: handleAlert,\n  correlation: handleCorrelation,\n  rca: handleRca,\n};\n\nfunction isRecord(value: unknown): value is Record<string, unknown> {\n  return typeof value === \"object\" && value !== null && !Array.isArray(value);\n}\n\nfunction validateAgentEnvelope(req: Request, res: Response, next: NextFunction): void {\n  if (!req.is(\"application/json\")) {\n    res.status(415).json({ error: \"Content-Type must be application/json\" });\n    return;\n  }\n\n  if (!isRecord(req.body) || !isRecord(req.body.payload)) {\n    res.status(400).json({ error: \"Request body must contain an object payload\" });\n    return;\n  }\n\n  if (req.body.context !== undefined && !isRecord(req.body.context)) {\n    res.status(400).json({ error: \"context must be an object when provided\" });\n    return;\n  }\n\n  next();\n}\n\napp.post(\"/v1/sentinel/:agent\", validateAgentEnvelope, async (req: Request, res: Response, next: NextFunction) => {\n  const { agent } = req.params;\n  const handler = agentHandlers[agent];\n\n  if (!handler) {\n    res.status(404).json({\n      error: `Unknown agent: ${agent}`,\n      available_agents: Object.keys(agentHandlers),\n    });\n    return;\n  }\n\n  try {\n    await handler(req, res);\n  } catch (err) {\n    next(err);\n  }\n});\n\ninterface HttpError extends Error {\n  status?: number;\n  type?: string;\n}\n\napp.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {\n  if (err.type === \"entity.too.large\") {\n    res.status(413).json({ error: `JSON request body exceeds ${MAX_JSON_BODY}` });\n    return;\n  }\n\n  if (err.type === \"entity.parse.failed\" || (err instanceof SyntaxError && err.status === 400)) {\n    res.status(400).json({ error: \"Malformed JSON request body\" });\n    return;\n  }\n\n  res.status(500).json({ error: \"Internal server error\" });\n});\n\n// ---------------------------------------------------------------------------\n// Export for Cloud Functions\n// ---------------------------------------------------------------------------\n\nexport const api = app;\n",
+    "sha256": "cd6aee97caae2afea1ffc9bf005ad174257fbfe6592912c91f4144891abfe05d"
+  },
+  "limitations": "Neutral unmeasured cost; noopRate is failed-case ratio. All broad failures block promotion."
+}
