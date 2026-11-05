@@ -1,0 +1,11 @@
+{
+  "id": "sentinel-ci-conjunction-20261018-v1",
+  "baseline": "16249d00b5ebaca889ac6ea372c8acc1b867579f",
+  "requiredJobs": ["node", "fmt", "clippy", "test", "coverage", "security-audit", "dependency-check", "build", "integration-tests"],
+  "holdout": "Each of nine required jobs cancelled or skipped, plus integration failure: 19 actual aggregate Bash executions must reject",
+  "anchor": "All-success accepts and each of eight original required jobs failing rejects: 9 executions, all retained",
+  "additionalChecks": "Missing and unrecognized job results reject; aggregate needs every other job and always runs",
+  "acceptance": "19/19 holdout, 9/9 anchors, original seven HTTP tests retained; hosted dependency start and cleanup pass before claiming integration setup repaired",
+  "merge": "Full Rust tests, strict Clippy, formatting, security, coverage, builds, integration and required CI/approval checks must all pass. Component promotion is not merge approval.",
+  "bounds": "One Darwin generation, two children, concurrency one, seed 2026101814, real sandbox. No test weakening, deployment, package publication, production persistence, auth workaround or new paid provisioning. No latency/cost/energy improvement claimed."
+}
