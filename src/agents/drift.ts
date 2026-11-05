@@ -13,13 +13,20 @@ export async function handleDrift(req: Request, res: Response): Promise<void> {
   const service: string = payload?.service ?? "unknown";
   const dryRun: boolean = payload?.dry_run ?? false;
 
-  if (referenceData.length < 10 || currentData.length < 10) {
+  // Length alone admits strings and arbitrary length-bearing objects. Reject
+  // nonnumeric/nonfinite samples before reporting a successful analysis.
+  const validSamples = Array.isArray(referenceData) && Array.isArray(currentData)
+    && referenceData.every(Number.isFinite) && currentData.every(Number.isFinite);
+
+  if (!validSamples || referenceData.length < 10 || currentData.length < 10) {
     res.status(400).json({
       agent: "drift",
       drift_detected: false,
       drift_severity: "error",
       psi_value: 0,
-      status: "Insufficient data: minimum 10 samples required",
+      status: validSamples
+        ? "Insufficient data: minimum 10 samples required"
+        : "reference_data and current_data must be arrays of finite numbers",
       layers_executed: ["input_validation"],
       execution_metadata: {
         trace_id: uuidv4(),

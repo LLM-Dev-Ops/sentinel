@@ -1,0 +1,24 @@
+name: Native Drift Sample Contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - src/**
+      - tests/**
+      - package*.json
+      - .github/workflows/drift-contract.yml
+permissions:
+  contents: read
+jobs:
+  drift-contract:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.21.0'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - run: node tests/drift-samples-probe.cjs .
